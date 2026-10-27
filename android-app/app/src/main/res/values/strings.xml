@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AcademiaLife</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_timetable">Timetable</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_attendance">Attendance</string>
+    <string name="nav_marks">Marks</string>
+    <string name="nav_ai_chat">AI Assistant</string>
+    <string name="nav_planner">Planner</string>
+    <string name="nav_vault">Vault</string>
+</resources>
