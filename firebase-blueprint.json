@@ -1,0 +1,264 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Student user profile and academic preferences",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "fullName": { "type": "string" },
+        "college": { "type": "string" },
+        "course": { "type": "string" },
+        "semester": { "type": "string" },
+        "academicYear": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "preferredStudyHoursPerDay": { "type": "number" },
+        "preferredBreakDurationMinutes": { "type": "number" },
+        "minimumAttendanceTarget": { "type": "number" },
+        "theme": { "type": "string" },
+        "attendanceWarningThreshold": { "type": "number" },
+        "soundEnabled": { "type": "boolean" },
+        "emailNotifications": { "type": "boolean" },
+        "reminderHoursBeforeDeadline": { "type": "number" },
+        "autoGenerateStudyPlans": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "email", "fullName"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Academic course/subject registered by the student",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "faculty": { "type": "string" },
+        "semester": { "type": "string" },
+        "color": { "type": "string" },
+        "targetAttendance": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "name", "code", "color"]
+    },
+    "TimetableEntry": {
+      "title": "Timetable Entry",
+      "description": "Class schedule slot for a day of week",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "subjectCode": { "type": "string" },
+        "subjectColor": { "type": "string" },
+        "dayOfWeek": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "classroom": { "type": "string" },
+        "facultyName": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "subjectId", "dayOfWeek", "startTime", "endTime"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Assignment, exam, project, revision or personal study task",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "subjectCode": { "type": "string" },
+        "subjectColor": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "taskType": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "estimatedEffortMinutes": { "type": "number" },
+        "priority": { "type": "string" },
+        "priorityScore": { "type": "number" },
+        "priorityReason": { "type": "string" },
+        "status": { "type": "string" },
+        "completedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "taskType", "dueDate", "status"]
+    },
+    "AttendanceRecord": {
+      "title": "Attendance Record",
+      "description": "Daily attendance mark for a subject session",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "subjectCode": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "subjectId", "date", "status"]
+    },
+    "Assessment": {
+      "title": "Assessment",
+      "description": "Exam, quiz, or test grade marks",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "subjectCode": { "type": "string" },
+        "subjectColor": { "type": "string" },
+        "assessmentName": { "type": "string" },
+        "assessmentType": { "type": "string" },
+        "marksObtained": { "type": "number" },
+        "maximumMarks": { "type": "number" },
+        "percentage": { "type": "number" },
+        "assessmentDate": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "subjectId", "assessmentName", "marksObtained", "maximumMarks"]
+    },
+    "StudySession": {
+      "title": "Study Session",
+      "description": "Scheduled study session or AI-generated revision block",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "subjectColor": { "type": "string" },
+        "taskId": { "type": "string" },
+        "taskTitle": { "type": "string" },
+        "title": { "type": "string" },
+        "sessionDate": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "status": { "type": "string" },
+        "recommendationReason": { "type": "string" },
+        "isAccepted": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "sessionDate", "startTime", "endTime"]
+    },
+    "VaultDocument": {
+      "title": "Vault Document",
+      "description": "Academic notes, syllabus, reference materials with text content",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "originalFilename": { "type": "string" },
+        "fileType": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "extractedText": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "category"]
+    },
+    "ChatConversation": {
+      "title": "Chat Conversation",
+      "description": "Student AI study conversation session",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "title"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Message in an AI conversation",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string" },
+        "userId": { "type": "string" },
+        "role": { "type": "string" },
+        "content": { "type": "string" },
+        "sources": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["conversationId", "userId", "role", "content"]
+    },
+    "NotificationItem": {
+      "title": "Notification Item",
+      "description": "In-app academic reminder and alert",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "notificationType": { "type": "string" },
+        "linkUrl": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "message", "isRead"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Primary user profile document"
+    },
+    "/users/{userId}/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "Subjects registered by the student"
+    },
+    "/users/{userId}/timetable/{entryId}": {
+      "schema": "TimetableEntry",
+      "description": "Class timetable schedule entries"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Assignments, exams, projects, revision tasks"
+    },
+    "/users/{userId}/attendance/{recordId}": {
+      "schema": "AttendanceRecord",
+      "description": "Daily attendance records for courses"
+    },
+    "/users/{userId}/assessments/{assessmentId}": {
+      "schema": "Assessment",
+      "description": "Tests, quizzes, and exams performance marks"
+    },
+    "/users/{userId}/study_sessions/{sessionId}": {
+      "schema": "StudySession",
+      "description": "Scheduled study planner sessions"
+    },
+    "/users/{userId}/documents/{documentId}": {
+      "schema": "VaultDocument",
+      "description": "Course documents and vault notes"
+    },
+    "/users/{userId}/conversations/{conversationId}": {
+      "schema": "ChatConversation",
+      "description": "AI Assistant chat sessions"
+    },
+    "/users/{userId}/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Chat messages with source citations"
+    },
+    "/users/{userId}/notifications/{notificationId}": {
+      "schema": "NotificationItem",
+      "description": "User academic alerts and deadline notifications"
+    }
+  }
+}

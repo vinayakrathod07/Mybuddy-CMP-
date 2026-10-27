@@ -1,0 +1,6 @@
+{
+  "name": "AcademiaLife - Student Academic Assistant",
+  "description": "An intelligent student academic assistant for managing timetables, assignments, attendance tracking, performance analytics, study planning, and course documents with Firebase persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,141 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny all unmapped operations
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User Profile Document
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) 
+        && request.resource.data.userId == userId;
+      allow update: if isOwner(userId) 
+        && request.resource.data.userId == userId;
+      allow delete: if isOwner(userId);
+
+      // Subjects Subcollection
+      match /subjects/{subjectId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(subjectId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Timetable Subcollection
+      match /timetable/{entryId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(entryId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Tasks Subcollection
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(taskId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Attendance Subcollection
+      match /attendance/{recordId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(recordId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Assessments Subcollection
+      match /assessments/{assessmentId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(assessmentId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Study Sessions Subcollection
+      match /study_sessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(sessionId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Vault Documents Subcollection
+      match /documents/{documentId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(documentId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // AI Conversations Subcollection
+      match /conversations/{conversationId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(conversationId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+
+        match /messages/{messageId} {
+          allow read: if isOwner(userId);
+          allow create: if isOwner(userId) 
+            && isValidId(messageId)
+            && request.resource.data.userId == userId;
+          allow update: if isOwner(userId) 
+            && request.resource.data.userId == userId;
+          allow delete: if isOwner(userId);
+        }
+      }
+
+      // Notifications Subcollection
+      match /notifications/{notificationId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) 
+          && isValidId(notificationId)
+          && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) 
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
