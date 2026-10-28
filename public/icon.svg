@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1e1b4b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#grad)" />
+  <!-- Cap / Academic Hat icon -->
+  <g transform="translate(64, 76)" filter="url(#shadow)">
+    <!-- Cap top -->
+    <path d="M192 48 L352 128 L192 208 L32 128 Z" fill="#ffffff" />
+    <!-- Cap base / skullcap -->
+    <path d="M96 160 L96 248 C96 288 138 320 192 320 C246 320 288 288 288 248 L288 160 L192 208 Z" fill="#e0e7ff" />
+    <!-- Tassel string & tassel -->
+    <path d="M320 144 L344 260" stroke="#fbbf24" stroke-width="12" stroke-linecap="round" fill="none" />
+    <circle cx="344" cy="272" r="14" fill="#f59e0b" />
+    <!-- Book pages at bottom -->
+    <path d="M96 280 C140 260 192 276 192 276 C192 276 244 260 288 280 L288 300 C244 280 192 296 192 296 C192 296 140 280 96 300 Z" fill="#c7d2fe" opacity="0.8" />
+  </g>
+</svg>

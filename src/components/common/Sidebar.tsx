@@ -15,15 +15,17 @@ import {
   LogOut,
   GraduationCap,
   X,
+  Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenMobileModal?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenMobileModal }) => {
   const { profile, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -115,6 +117,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             );
           })}
         </div>
+
+        {/* Download APK / Mobile Button */}
+        {onOpenMobileModal && (
+          <div className="px-3.5 pb-2">
+            <button
+              onClick={() => {
+                onClose();
+                onOpenMobileModal();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-emerald-600/30 via-indigo-600/30 to-violet-600/30 hover:from-emerald-600/40 hover:to-violet-600/40 border border-emerald-500/30 rounded-xl text-xs font-bold text-emerald-200 transition-all group"
+            >
+              <div className="flex items-center space-x-2">
+                <Smartphone className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>Download APK / App</span>
+              </div>
+              <span className="text-[10px] bg-emerald-500 text-white font-bold px-1.5 py-0.5 rounded-md">
+                APK
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* User Card & Logout */}
         <div className="p-3.5 border-t border-slate-800/80 bg-slate-950/40">

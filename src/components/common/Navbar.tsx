@@ -5,11 +5,6 @@ import {
   Search,
   Bell,
   Sparkles,
-  Plus,
-  BookOpen,
-  Calendar,
-  CheckCircle,
-  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getNotifications, markNotificationRead } from '../../services/firebaseDb';
@@ -17,6 +12,7 @@ import { NotificationItem } from '../../types';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
+  onOpenMobileModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
