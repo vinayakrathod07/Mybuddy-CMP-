@@ -56,13 +56,18 @@ class ProfileFragment : Fragment() {
         }
 
         btnAuthDialog.setOnClickListener {
-            showAuthDialog()
+            val intent = android.content.Intent(requireContext(), LoginActivity::class.java)
+            intent.putExtra("FORCE_SHOW", true)
+            startActivity(intent)
         }
 
         btnSignOut.setOnClickListener {
             FirebaseRepository.signOut()
             Toast.makeText(context, "Signed out of current account", Toast.LENGTH_SHORT).show()
-            loadProfileData()
+            val intent = android.content.Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            intent.putExtra("FORCE_SHOW", true)
+            startActivity(intent)
         }
 
         loadProfileData()
