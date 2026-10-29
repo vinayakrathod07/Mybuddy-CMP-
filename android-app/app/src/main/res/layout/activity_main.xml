@@ -4,35 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/slate_50"
+    android:background="@color/lavender_bg"
     tools:context=".MainActivity">
 
+    <!-- Neumorphic Header Toolbar (Lavender Cloud) -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/slate_900"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_neumorphic_top_bar"
+        android:elevation="4dp"
         app:title="AcademiaLife"
-        app:titleTextColor="@color/white"
-        app:subtitle="Student Assistant 2026–2027"
-        app:subtitleTextColor="@color/slate_500"
+        app:titleCentered="false"
+        app:titleTextAppearance="@style/TextAppearance.Material3.TitleMedium"
+        app:titleTextColor="@color/text_primary"
+        app:subtitle="Student Academic Assistant"
+        app:subtitleTextColor="@color/text_secondary"
+        app:menu="@menu/top_app_bar_menu"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Fragment Container -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/lavender_bg"
         app:layout_constraintTop_toBottomOf="@id/topAppBar"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation" />
 
+    <!-- Neumorphic Bottom Navigation Bar (Lavender Cloud) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:elevation="8dp"
-        app:itemIconTint="@color/brand_primary"
-        app:itemTextColor="@color/slate_800"
+        android:layout_height="68dp"
+        android:background="@drawable/bg_neumorphic_bottom_nav"
+        android:elevation="8dp"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:itemActiveIndicatorStyle="@null"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent" />
 

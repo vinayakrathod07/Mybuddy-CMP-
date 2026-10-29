@@ -2,8 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_notifications"
+        android:icon="@drawable/ic_notifications"
+        android:title="Notifications"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_chat"
-        android:icon="@android:drawable/ic_dialog_email"
-        android:title="AI Assistant"
+        android:icon="@drawable/ic_bot"
+        android:title="AI Tutor"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile"
         app:showAsAction="ifRoom" />
 </menu>

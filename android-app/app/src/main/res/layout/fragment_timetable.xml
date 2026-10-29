@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/slate_50">
+    android:background="@color/neu_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,6 +11,26 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Screen Heading (Lavender Cloud) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly Timetable"
+            android:textColor="@color/text_primary"
+            android:textSize="26sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="12dp"
+            android:text="View and manage your scheduled classes, rooms, and labs"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <!-- Day Filter Chips (Neumorphic) -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="All" />
+                    android:text="All Days" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipMonday"
@@ -74,35 +94,64 @@
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
-        <TextView
-            android:id="@+id/tvEmptyTimetable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="No classes registered. Tap + to add a class slot."
-            android:textColor="@color/slate_500"
-            android:textSize="13sp"
-            android:visibility="gone" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTimetable"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_weight="1" />
+            android:layout_marginTop="12dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
 
+        <!-- Empty State (Neumorphic) -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyTimetable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_neumorphic_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="28dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_timetable"
+                app:tint="@color/text_muted" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="No Classes Scheduled"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="Tap the + button below to add your weekly class timetable."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- Floating Action Button (Neumorphic Primary) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddClass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="24dp"
         android:backgroundTint="@color/brand_primary"
         android:contentDescription="Add Class"
-        android:src="@android:drawable/ic_input_add"
+        android:src="@drawable/ic_add"
+        app:elevation="8dp"
         app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

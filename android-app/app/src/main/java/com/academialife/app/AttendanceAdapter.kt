@@ -1,30 +1,33 @@
 package com.academialife.app
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class AttendanceAdapter(
     private var items: List<SubjectAttendanceSummary>,
-    private val onQuickAction: (SubjectAttendanceSummary, String) -> Unit
+    private val onRecordAttendance: (String, String, String, String) -> Unit,
+    private val onDeleteClick: ((String, String) -> Unit)? = null
 ) : RecyclerView.Adapter<AttendanceAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvCode: TextView = view.findViewById(R.id.tvSubjectCode)
-        val tvStatus: TextView = view.findViewById(R.id.tvStatusBadge)
         val tvName: TextView = view.findViewById(R.id.tvSubjectName)
-        val tvPct: TextView = view.findViewById(R.id.tvAttendancePct)
-        val tvFraction: TextView = view.findViewById(R.id.tvAttendanceFraction)
-        val pbAttendance: ProgressBar = view.findViewById(R.id.pbAttendance)
-        val tvExplanation: TextView = view.findViewById(R.id.tvExplanation)
-        val btnPresent: Button = view.findViewById(R.id.btnQuickPresent)
-        val btnAbsent: Button = view.findViewById(R.id.btnQuickAbsent)
-        val btnLeave: Button = view.findViewById(R.id.btnQuickLeave)
+        val tvPct: TextView = view.findViewById(R.id.tvSubjectPct)
+        val tvCounts: TextView = view.findViewById(R.id.tvAttendanceCounts)
+        val tvStatus: TextView = view.findViewById(R.id.tvStatusBadge)
+        val tvExp: TextView = view.findViewById(R.id.tvExplanation)
+        val pbProgress: ProgressBar = view.findViewById(R.id.pbSubjectProgress)
+        val btnPresent: TextView = view.findViewById(R.id.btnLogPresent)
+        val btnAbsent: TextView = view.findViewById(R.id.btnLogAbsent)
+        val btnDelete: ImageView = view.findViewById(R.id.btnDeleteSubject)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,32 +37,47 @@ class AttendanceAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
+        val context = holder.itemView.context
+
         holder.tvCode.text = item.subjectCode
         holder.tvName.text = item.subjectName
         holder.tvPct.text = "${item.percentage}%"
-        holder.tvFraction.text = "(${item.presentCount}/${item.totalClasses} attended)"
-        holder.pbAttendance.progress = item.percentage.toInt()
-        holder.tvExplanation.text = item.explanation
-        holder.tvStatus.text = item.status.uppercase()
+        holder.tvCounts.text = "${item.presentCount} / ${item.totalClasses} attended"
+        holder.tvExp.text = item.explanation
+        holder.pbProgress.progress = item.percentage.toInt()
 
         when (item.status) {
             "safe" -> {
-                holder.tvStatus.setTextColor(Color.parseColor("#10B981"))
-                holder.tvStatus.setBackgroundColor(Color.parseColor("#ECFDF5"))
+                holder.tvStatus.text = "Safe"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_safe)
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_safe))
+                holder.pbProgress.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.status_safe))
             }
             "warning" -> {
-                holder.tvStatus.setTextColor(Color.parseColor("#F59E0B"))
-                holder.tvStatus.setBackgroundColor(Color.parseColor("#FFFBEB"))
+                holder.tvStatus.text = "Warning"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_warning)
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_warning))
+                holder.pbProgress.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.status_warning))
             }
             else -> {
-                holder.tvStatus.setTextColor(Color.parseColor("#EF4444"))
-                holder.tvStatus.setBackgroundColor(Color.parseColor("#FEF2F2"))
+                holder.tvStatus.text = "Critical"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_critical)
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_critical))
+                holder.pbProgress.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.status_critical))
             }
         }
 
-        holder.btnPresent.setOnClickListener { onQuickAction(item, "present") }
-        holder.btnAbsent.setOnClickListener { onQuickAction(item, "absent") }
-        holder.btnLeave.setOnClickListener { onQuickAction(item, "leave") }
+        holder.btnPresent.setOnClickListener {
+            onRecordAttendance(item.subjectId, item.subjectName, item.subjectCode, "present")
+        }
+
+        holder.btnAbsent.setOnClickListener {
+            onRecordAttendance(item.subjectId, item.subjectName, item.subjectCode, "absent")
+        }
+
+        holder.btnDelete.setOnClickListener {
+            onDeleteClick?.invoke(item.subjectId, item.subjectName)
+        }
     }
 
     override fun getItemCount(): Int = items.size

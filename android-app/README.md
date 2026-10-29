@@ -1,66 +1,88 @@
-# AcademiaLife - Native Android Application (Kotlin + XML)
+# 🎓 AcademiaLife (MyBuddy) - Native Neumorphic Android Application
 
-A native Android Studio application converted from the Student Academic Assistant App, featuring Firebase Firestore persistence, Auth, real-time timetable collision detection, deterministic task priority scoring, attendance compliance calculation, marks analytics, and voice-enabled AI tutor assistant.
+A high-performance native Android application converted from the Student Academic Assistant web platform, completely redesigned with a **Neumorphic (Soft UI) tactile aesthetic** and packed with full feature parity:
+
+- 🎨 **Neumorphic Design System:** Custom extruded surfaces, dual-shadow ambient highlights, inset debossed text inputs, soft pill chips, and tactile buttons.
+- 📊 **Dynamic Dashboard:** Real-time academic metrics, Daily AI Academic Briefing, and One-Tap Attendance Quick-Logger.
+- 🗓️ **Timetable & Collision Detection:** Weekly schedule manager with real-time time interval overlap warning.
+- ✅ **Deterministic Task Priority:** Urgency algorithms weighing type, proximity, effort, and base weight into a 0–100 score.
+- 📈 **Attendance Compliance Ledger:** Exact mathematical calculations determining consecutive classes needed or safe margin before shortage (< 75%).
+- ⏱️ **Study Planner & Pomodoro Timer:** 25-minute focus session / 5-minute break countdown timer with cycle counter and AI study plan auto-generator.
+- 📚 **Course Document Vault:** Categorized academic repository (Syllabus, Lecture Notes, Past Papers, Cheatsheets).
+- 🔔 **Smart Alerts Center:** Real-time warnings for attendance shortages, approaching deadlines, and exam schedules.
+- 🔍 **Global Search Hub:** Instant search across subjects, timetable slots, tasks, marks, and documents.
+- 🤖 **Voice-Enabled AI Tutor:** Real-time academic RAG assistant with Android `SpeechRecognizer` voice input and `TextToSpeech` audio playback.
+- 👤 **Student Profile & Settings:** Custom minimum attendance target (75%, 80%, etc.), study hour preferences, and Firebase Auth / Demo Guest switcher.
 
 ---
 
-## 🚀 How to Run in Android Studio
+## 🚀 How to Run
 
-1. **Open Android Studio**.
-2. Click **File -> Open...** (or **Open** from the welcome screen).
-3. Select the `android-app` folder from this project directory.
-4. Android Studio will automatically recognize the Gradle build files (`settings.gradle.kts`, `build.gradle.kts`, and `gradle/libs.versions.toml`).
-5. Wait for **Gradle Sync** to finish.
-6. Connect an Android device with USB debugging enabled or start an Android Emulator (API 24+ recommended, e.g., Android 12, 13, 14).
-7. Click the green **Run** (▶) button or press `Shift + F10`.
+### Option 1: One-Click Runner (USB Connected Phone)
+1. Enable **USB Debugging** on your Android device (Settings -> Developer Options -> USB Debugging).
+2. Connect your phone to your PC via USB cable.
+3. Double-click `run_on_mobile.bat` in the project root.
+   - It will automatically detect `adb` from your Android SDK, install the pre-built APK, and launch the app!
+
+### Option 2: Android Studio
+1. Open **Android Studio**.
+2. Select **File -> Open...** and choose the `android-app` folder.
+3. Wait for Gradle Sync to complete.
+4. Select your connected device or emulator and press **Run (▶)** (`Shift + F10`).
 
 ---
 
-## 📁 Project Architecture & Components
-
+## 📦 Pre-Built APK Location
+The compiled debug APK is ready for deployment at:
 ```
-android-app/
-├── app/
-│   ├── src/main/
-│   │   ├── AndroidManifest.xml          # Configured with INTERNET and RECORD_AUDIO permissions
-│   │   ├── google-services.json         # Firebase project configuration
-│   │   ├── java/com/academialife/app/
-│   │   │   ├── MainActivity.kt          # Host Activity with MaterialToolbar & BottomNavigationView
-│   │   │   ├── Models.kt                # Data models matching Firestore schemas (zero sample data)
-│   │   │   ├── AcademicCalculators.kt   # Deterministic priority scoring, attendance calculators & collision checks
-│   │   │   ├── FirebaseRepository.kt    # Firestore CRUD with custom databaseId & Auth
-│   │   │   ├── DashboardFragment.kt     # Metric cards, quick attendance logger, upcoming tasks
-│   │   │   ├── TimetableFragment.kt     # Weekly timetable with conflict detection & dialog
-│   │   │   ├── TimetableAdapter.kt      # RecyclerView adapter for timetable cards
-│   │   │   ├── TasksFragment.kt         # Assignment & Exam tracker with priority badge
-│   │   │   ├── TasksAdapter.kt          # RecyclerView adapter for tasks with status toggle
-│   │   │   ├── AttendanceFragment.kt    # Attendance compliance ledger with target calculations
-│   │   │   ├── AttendanceAdapter.kt     # RecyclerView adapter for attendance subjects
-│   │   │   ├── MarksAnalyticsFragment.kt# Assessments and grade percentage analytics
-│   │   │   ├── MarksAdapter.kt          # RecyclerView adapter for assessments
-│   │   │   ├── AIChatFragment.kt        # AI Assistant with SpeechRecognizer and TextToSpeech
-│   │   │   └── ChatAdapter.kt           # RecyclerView adapter for chat bubbles with TTS
-│   │   └── res/
-│   │       ├── layout/                  # Responsive XML layouts matching Material 3
-│   │       ├── menu/                    # bottom_nav_menu.xml & top_app_bar_menu.xml
-│   │       ├── values/                  # colors.xml, strings.xml, themes.xml
-│   │       └── xml/                     # backup_rules.xml, data_extraction_rules.xml
-│   ├── build.gradle.kts                 # App module Gradle configuration
-│   └── proguard-rules.pro
-├── gradle/
-│   ├── libs.versions.toml               # Version catalog for AGP 8.3+, Kotlin, Material, Firebase
-│   └── wrapper/gradle-wrapper.properties
-├── build.gradle.kts                     # Root build configuration
-└── settings.gradle.kts
+android-app/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ---
 
-## ⚡ Key Features
+## 🎨 Neumorphic Design System Architecture
 
-1. **No Sample Data:** Starts clean; records are created when the student adds courses, classes, tasks, or marks.
-2. **Firebase Firestore Database:** Connected to database `ai-studio-academialifestud-faab33c7-9821-445b-9c14-7c8200013f6a`.
-3. **Deterministic Task Priority:** Computes priority score based on type weight (exam: 40, project: 30, assignment: 20, revision: 15), urgency based on due date proximity, and effort.
-4. **Attendance Compliance:** Mathematically computes classes needed to meet target percentage (e.g. 75%) or safe margin of classes that can be missed.
-5. **Timetable Collision Detection:** Flags overlapping time intervals when scheduling classes on the same day.
-6. **Voice AI Assistant:** Integrated with Android `SpeechRecognizer` for voice prompts and `TextToSpeech` for read-aloud responses.
+```
+android-app/app/src/main/res/drawable/
+├── bg_neumorphic_card.xml          # Extruded dual-shadow surface (20dp radius)
+├── bg_neumorphic_card_glow.xml     # Extruded card with vibrant primary accent glow
+├── bg_neumorphic_sunken.xml        # Inset debossed container for text fields & search bars
+├── bg_neumorphic_btn.xml           # Tactile button state-list (Raised -> Sunken on press)
+├── bg_neumorphic_btn_primary.xml   # High-contrast indigo button with soft drop shadow
+├── bg_neumorphic_circle_btn.xml    # Circular tactile buttons for FABs, Mic, Timer controls
+├── bg_neumorphic_chip.xml          # Pill chip (Normal vs Sunken Selected)
+├── bg_neumorphic_top_bar.xml       # Seamless header toolbar with soft drop shadow
+├── bg_neumorphic_bottom_nav.xml    # Floating bottom navigation bar with ambient top shadow
+└── bg_pill_safe / warning / critical.xml # Semantic status compliance badges
+```
+
+---
+
+## 📂 Project Structure
+
+```
+android-app/app/src/main/java/com/academialife/app/
+├── MainActivity.kt               # Navigation host with Neumorphic Top Bar & Bottom Navigation
+├── Models.kt                     # Data models (Profile, Timetable, Task, Attendance, Study, Doc, Notif)
+├── AcademicCalculators.kt        # Deterministic scoring, attendance compliance math, conflict detection
+├── FirebaseRepository.kt         # Firestore CRUD, Auth, Smart Notifications, Global Search, AI RAG
+├── DashboardFragment.kt          # Metric cards, one-tap attendance logger, upcoming schedule & tasks
+├── TimetableFragment.kt          # Day-filtered timetable with collision detection dialog
+├── TimetableAdapter.kt           # Class cards with room, time badge, faculty, and delete action
+├── TasksFragment.kt              # Assignment/exam tracker with filter chips and completion progress bar
+├── TasksAdapter.kt               # Task cards with priority score pills and strike-through toggling
+├── AttendanceFragment.kt         # Overall compliance ring, target comparison, and subject cards
+├── AttendanceAdapter.kt          # Subject cards with [+ Log Present] and [- Log Absent] actions
+├── MarksAnalyticsFragment.kt     # GPA/Average analytics, top scored subject, assessment history
+├── MarksAdapter.kt               # Assessment cards with percentage badge
+├── StudyPlannerFragment.kt       # Pomodoro countdown timer (25m/5m), auto-generator, and session list
+├── StudySessionAdapter.kt        # Scheduled study blocks with check-off action
+├── DocumentVaultFragment.kt      # Categorized course documents with search and open URL action
+├── DocumentAdapter.kt            # Document cards with category pill
+├── NotificationsFragment.kt      # Smart alerts for attendance shortage, deadlines, and exams
+├── NotificationsAdapter.kt       # Notification cards with alert icons
+├── SearchFragment.kt             # Global instant search across all student academic records
+├── SearchAdapter.kt              # Categorized search results with tap-to-navigate
+├── AIChatFragment.kt             # AI Academic Assistant with SpeechRecognizer and TextToSpeech
+└── ChatAdapter.kt                # Neumorphic chat bubbles with read-aloud TTS button
+```

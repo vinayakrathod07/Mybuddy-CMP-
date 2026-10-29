@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -22,116 +23,116 @@ import java.util.Locale
 
 class MarksAnalyticsFragment : Fragment() {
 
-    private lateinit var tvAverage: TextView
-    private lateinit var tvTotal: TextView
+    private lateinit var tvAverageMarks: TextView
+    private lateinit var tvTotalAssessments: TextView
+    private lateinit var tvTopSubject: TextView
     private lateinit var rvAssessments: RecyclerView
-    private lateinit var tvEmpty: TextView
-    private lateinit var fabAddMarks: FloatingActionButton
+    private lateinit var layoutEmpty: LinearLayout
+    private lateinit var fabAdd: FloatingActionButton
+
     private lateinit var adapter: MarksAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_marks, container, false)
-        tvAverage = root.findViewById(R.id.tvAverageMarks)
-        tvTotal = root.findViewById(R.id.tvTotalAssessments)
-        rvAssessments = root.findViewById(R.id.rvAssessments)
-        tvEmpty = root.findViewById(R.id.tvEmptyMarks)
-        fabAddMarks = root.findViewById(R.id.fabAddMarks)
 
-        adapter = MarksAdapter(emptyList())
+        tvAverageMarks = root.findViewById(R.id.tvAverageMarks)
+        tvTotalAssessments = root.findViewById(R.id.tvTotalAssessments)
+        tvTopSubject = root.findViewById(R.id.tvTopSubject)
+        rvAssessments = root.findViewById(R.id.rvAssessments)
+        layoutEmpty = root.findViewById(R.id.layoutEmptyMarks)
+        fabAdd = root.findViewById(R.id.fabAddAssessment)
+
+        adapter = MarksAdapter(emptyList()) { item ->
+            AlertDialog.Builder(requireContext())
+                .setTitle("Delete Assessment")
+                .setMessage("Remove '${item.assessmentName}' from records?")
+                .setPositiveButton("Delete") { _, _ ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        FirebaseRepository.deleteAssessment(item.id)
+                        Toast.makeText(context, "Assessment deleted", Toast.LENGTH_SHORT).show()
+                        loadMarksData()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
         rvAssessments.layoutManager = LinearLayoutManager(context)
         rvAssessments.adapter = adapter
 
-        fabAddMarks.setOnClickListener {
-            showAddMarksDialog()
+        fabAdd.setOnClickListener {
+            showAddAssessmentDialog()
         }
 
+        loadMarksData()
         return root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        loadMarks()
-    }
-
-    private fun loadMarks() {
+    private fun loadMarksData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val list = FirebaseRepository.getAssessments()
-                tvTotal.text = "${list.size}"
-                if (list.isNotEmpty()) {
-                    val avg = kotlin.math.round((list.map { it.percentage }.average()) * 10.0) / 10.0
-                    tvAverage.text = "$avg%"
-                    tvEmpty.visibility = View.GONE
-                    rvAssessments.visibility = View.VISIBLE
-                    adapter.updateList(list)
-                } else {
-                    tvAverage.text = "N/A"
-                    tvEmpty.visibility = View.VISIBLE
-                    rvAssessments.visibility = View.GONE
-                }
-            } catch (e: Exception) {
-                Toast.makeText(context, "Error loading marks: ${e.message}", Toast.LENGTH_SHORT).show()
+            val list = FirebaseRepository.getAssessments()
+            tvTotalAssessments.text = "${list.size}"
+
+            if (list.isNotEmpty()) {
+                val avg = kotlin.math.round((list.map { it.percentage }.average()) * 10.0) / 10.0
+                tvAverageMarks.text = "$avg%"
+
+                val top = list.maxByOrNull { it.percentage }
+                tvTopSubject.text = "${top?.percentage?.toInt()}%"
+            } else {
+                tvAverageMarks.text = "--"
+                tvTopSubject.text = "--"
             }
+
+            adapter.updateList(list)
+            layoutEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
         }
     }
 
-    private fun showAddMarksDialog() {
-        val ctx = requireContext()
-        val layout = android.widget.LinearLayout(ctx).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
+    private fun showAddAssessmentDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_add_assessment, null)
+        val etName = view.findViewById<EditText>(R.id.etAssessmentName)
+        val etSub = view.findViewById<EditText>(R.id.etSubjectName)
+        val spType = view.findViewById<Spinner>(R.id.spAssessmentType)
+        val etObtained = view.findViewById<EditText>(R.id.etMarksObtained)
+        val etMax = view.findViewById<EditText>(R.id.etMaxMarks)
+        val etDate = view.findViewById<EditText>(R.id.etAssessmentDate)
 
-        val etSubject = EditText(ctx).apply { hint = "Subject Code (e.g. CS301)" }
-        val etName = EditText(ctx).apply { hint = "Assessment Name (e.g. Mid-Term 1)" }
+        val types = arrayOf("Quiz", "Midterm", "Final Exam", "Assignment", "Lab Exam")
+        spType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, types)
 
-        val spType = Spinner(ctx)
-        spType.adapter = ArrayAdapter(ctx, android.R.layout.simple_spinner_dropdown_item, listOf("Quiz", "Mid-Term", "End-Term", "Assignment", "Project"))
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        etDate.setText(sdf.format(Date()))
 
-        val etObtained = EditText(ctx).apply { hint = "Marks Obtained (e.g. 18.5)" }
-        val etMax = EditText(ctx).apply { hint = "Maximum Marks (e.g. 20.0)"; setText("20.0") }
-
-        layout.addView(etSubject)
-        layout.addView(etName)
-        layout.addView(spType)
-        layout.addView(etObtained)
-        layout.addView(etMax)
-
-        AlertDialog.Builder(ctx)
-            .setTitle("Record Assessment Marks")
-            .setView(layout)
-            .setPositiveButton("Save Score") { _, _ ->
-                val code = etSubject.text.toString().trim().uppercase()
+        AlertDialog.Builder(requireContext())
+            .setTitle("Record Assessment")
+            .setView(view)
+            .setPositiveButton("Save") { _, _ ->
                 val name = etName.text.toString().trim()
+                val sub = etSub.text.toString().trim()
                 val type = spType.selectedItem.toString()
                 val obtained = etObtained.text.toString().toDoubleOrNull() ?: 0.0
                 val maxMarks = etMax.text.toString().toDoubleOrNull() ?: 20.0
+                val date = etDate.text.toString().trim().ifEmpty { sdf.format(Date()) }
 
-                if (name.isEmpty() || code.isEmpty()) {
-                    Toast.makeText(ctx, "Name and Subject required", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val subjects = FirebaseRepository.getSubjects()
-                    val matchedSub = subjects.find { it.code.equals(code, ignoreCase = true) }
-                    val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
-                    FirebaseRepository.addAssessment(
-                        Assessment(
-                            subjectCode = code,
-                            subjectName = matchedSub?.name ?: code,
+                if (name.isNotEmpty() && sub.isNotEmpty()) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val ass = Assessment(
                             assessmentName = name,
+                            subjectName = sub,
                             assessmentType = type,
                             marksObtained = obtained,
                             maximumMarks = maxMarks,
-                            assessmentDate = dateStr
+                            assessmentDate = date
                         )
-                    )
-                    Toast.makeText(ctx, "Score saved to Firestore!", Toast.LENGTH_SHORT).show()
-                    loadMarks()
+                        FirebaseRepository.addAssessment(ass)
+                        Toast.makeText(context, "Assessment recorded!", Toast.LENGTH_SHORT).show()
+                        loadMarksData()
+                    }
+                } else {
+                    Toast.makeText(context, "Assessment name and subject are required", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)

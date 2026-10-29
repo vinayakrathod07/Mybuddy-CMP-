@@ -1,25 +1,28 @@
 package com.academialife.app
 
-import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class TasksAdapter(
     private var items: List<Task>,
-    private val onStatusToggled: (Task, Boolean) -> Unit
+    private val onTaskStatusChanged: (Task, Boolean) -> Unit,
+    private val onDeleteClick: ((Task) -> Unit)? = null
 ) : RecyclerView.Adapter<TasksAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cbCompleted: CheckBox = view.findViewById(R.id.cbTaskCompleted)
         val tvTitle: TextView = view.findViewById(R.id.tvTaskTitle)
         val tvSubject: TextView = view.findViewById(R.id.tvTaskSubject)
-        val tvPriorityReason: TextView = view.findViewById(R.id.tvPriorityReason)
-        val tvPriorityBadge: TextView = view.findViewById(R.id.tvPriorityBadge)
+        val tvReason: TextView = view.findViewById(R.id.tvPriorityReason)
+        val tvScore: TextView = view.findViewById(R.id.tvPriorityScore)
+        val btnDelete: ImageView = view.findViewById(R.id.btnDeleteTask)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,24 +32,59 @@ class TasksAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.tvTitle.text = item.title
-        holder.tvSubject.text = "${item.subjectName.ifEmpty { item.taskType.uppercase() }} • Due: ${item.dueDate}"
-        holder.tvPriorityReason.text = item.priorityReason
-        holder.tvPriorityBadge.text = "${item.priorityScore.toInt()} pts"
-
         val isCompleted = item.status == "completed"
-        holder.cbCompleted.isChecked = isCompleted
 
+        holder.tvTitle.text = item.title
+        holder.tvSubject.text = buildString {
+            if (item.subjectName.isNotEmpty()) {
+                append(item.subjectName)
+                append(" • ")
+            }
+            append(item.taskType.replaceFirstChar { it.uppercase() })
+            if (item.dueDate.isNotEmpty()) {
+                append(" • Due: ")
+                append(item.dueDate)
+            }
+        }
+        holder.tvReason.text = item.priorityReason
+
+        val context = holder.itemView.context
         if (isCompleted) {
             holder.tvTitle.paintFlags = holder.tvTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            holder.tvTitle.setTextColor(Color.parseColor("#94A3B8"))
+            holder.tvTitle.setTextColor(ContextCompat.getColor(context, R.color.text_muted))
+            holder.tvScore.text = "Done"
+            holder.tvScore.setBackgroundResource(R.drawable.bg_pill_safe)
+            holder.tvScore.setTextColor(ContextCompat.getColor(context, R.color.status_safe))
         } else {
             holder.tvTitle.paintFlags = holder.tvTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            holder.tvTitle.setTextColor(Color.parseColor("#0F172A"))
+            holder.tvTitle.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+            holder.tvScore.text = "${item.priorityScore.toInt()} pts"
+
+            when {
+                item.priorityScore >= 70.0 -> {
+                    holder.tvScore.setBackgroundResource(R.drawable.bg_pill_critical)
+                    holder.tvScore.setTextColor(ContextCompat.getColor(context, R.color.status_critical))
+                }
+                item.priorityScore >= 40.0 -> {
+                    holder.tvScore.setBackgroundResource(R.drawable.bg_pill_warning)
+                    holder.tvScore.setTextColor(ContextCompat.getColor(context, R.color.status_warning))
+                }
+                else -> {
+                    holder.tvScore.setBackgroundResource(R.drawable.bg_pill_neutral)
+                    holder.tvScore.setTextColor(ContextCompat.getColor(context, R.color.brand_primary))
+                }
+            }
         }
 
-        holder.cbCompleted.setOnClickListener {
-            onStatusToggled(item, holder.cbCompleted.isChecked)
+        // Avoid triggering listener when binding
+        holder.cbCompleted.setOnCheckedChangeListener(null)
+        holder.cbCompleted.isChecked = isCompleted
+        holder.cbCompleted.setOnCheckedChangeListener { _, isChecked ->
+            onTaskStatusChanged(item, isChecked)
+        }
+
+        holder.btnDelete.setOnClickListener {
+            onDeleteClick?.invoke(item)
         }
     }
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "282422498107",
+    "project_id": "academialife-bd90f",
+    "storage_bucket": "academialife-bd90f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282422498107:android:af26de359adf277f569d1e",
+        "android_client_info": {
+          "package_name": "com.academialife.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpj1wcNbedg5wETjOKrFyrD9asxtK_qU8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

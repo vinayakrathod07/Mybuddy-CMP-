@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_dashboard"
-        android:icon="@android:drawable/ic_menu_today"
-        android:title="@string/nav_dashboard" />
+        android:icon="@drawable/ic_dashboard"
+        android:title="Dashboard" />
     <item
         android:id="@+id/navigation_timetable"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="@string/nav_timetable" />
+        android:icon="@drawable/ic_timetable"
+        android:title="Timetable" />
     <item
         android:id="@+id/navigation_tasks"
-        android:icon="@android:drawable/checkbox_on_background"
-        android:title="@string/nav_tasks" />
+        android:icon="@drawable/ic_tasks"
+        android:title="Tasks" />
+    <item
+        android:id="@+id/navigation_study"
+        android:icon="@drawable/ic_study"
+        android:title="Study" />
     <item
         android:id="@+id/navigation_attendance"
-        android:icon="@android:drawable/ic_menu_my_calendar"
-        android:title="@string/nav_attendance" />
-    <item
-        android:id="@+id/navigation_marks"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="@string/nav_marks" />
+        android:icon="@drawable/ic_attendance"
+        android:title="Attendance" />
 </menu>

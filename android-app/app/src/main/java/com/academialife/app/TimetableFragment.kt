@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.TextView
+import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -18,155 +20,149 @@ import kotlinx.coroutines.launch
 
 class TimetableFragment : Fragment() {
 
-    private lateinit var chipGroupDays: ChipGroup
+    private lateinit var chipGroup: ChipGroup
     private lateinit var rvTimetable: RecyclerView
-    private lateinit var tvEmpty: TextView
-    private lateinit var fabAddClass: FloatingActionButton
-
+    private lateinit var layoutEmpty: LinearLayout
+    private lateinit var fabAdd: FloatingActionButton
     private lateinit var adapter: TimetableAdapter
-    private var allEntries = listOf<TimetableEntry>()
-    private var subjectsList = listOf<Subject>()
-    private var selectedDay = "All"
+
+    private var allEntries: List<TimetableEntry> = emptyList()
+    private var selectedDay: String = "All"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_timetable, container, false)
-        chipGroupDays = root.findViewById(R.id.chipGroupDays)
-        rvTimetable = root.findViewById(R.id.rvTimetable)
-        tvEmpty = root.findViewById(R.id.tvEmptyTimetable)
-        fabAddClass = root.findViewById(R.id.fabAddClass)
 
-        adapter = TimetableAdapter(emptyList())
+        chipGroup = root.findViewById(R.id.chipGroupDays)
+        rvTimetable = root.findViewById(R.id.rvTimetable)
+        layoutEmpty = root.findViewById(R.id.layoutEmptyTimetable)
+        fabAdd = root.findViewById(R.id.fabAddClass)
+
+        adapter = TimetableAdapter(emptyList()) { itemToDelete ->
+            AlertDialog.Builder(requireContext())
+                .setTitle("Delete Class")
+                .setMessage("Remove '${itemToDelete.subjectName}' from ${itemToDelete.dayOfWeek} schedule?")
+                .setPositiveButton("Delete") { _, _ ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        FirebaseRepository.deleteTimetableEntry(itemToDelete.id)
+                        Toast.makeText(context, "Class removed", Toast.LENGTH_SHORT).show()
+                        loadTimetable()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
         rvTimetable.layoutManager = LinearLayoutManager(context)
         rvTimetable.adapter = adapter
 
-        setupDayChips()
+        chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            selectedDay = when (checkedIds.firstOrNull()) {
+                R.id.chipMonday -> "Monday"
+                R.id.chipTuesday -> "Tuesday"
+                R.id.chipWednesday -> "Wednesday"
+                R.id.chipThursday -> "Thursday"
+                R.id.chipFriday -> "Friday"
+                R.id.chipSaturday -> "Saturday"
+                else -> "All"
+            }
+            filterList()
+        }
 
-        fabAddClass.setOnClickListener {
+        fabAdd.setOnClickListener {
             showAddClassDialog()
         }
 
-        return root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         loadTimetable()
-    }
-
-    private fun setupDayChips() {
-        chipGroupDays.setOnCheckedStateChangeListener { _, checkedIds ->
-            selectedDay = when {
-                checkedIds.contains(R.id.chipMonday) -> "Monday"
-                checkedIds.contains(R.id.chipTuesday) -> "Tuesday"
-                checkedIds.contains(R.id.chipWednesday) -> "Wednesday"
-                checkedIds.contains(R.id.chipThursday) -> "Thursday"
-                checkedIds.contains(R.id.chipFriday) -> "Friday"
-                checkedIds.contains(R.id.chipSaturday) -> "Saturday"
-                else -> "All"
-            }
-            filterTimetable()
-        }
+        return root
     }
 
     private fun loadTimetable() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                subjectsList = FirebaseRepository.getSubjects()
-                allEntries = FirebaseRepository.getTimetable()
-                filterTimetable()
-            } catch (e: Exception) {
-                Toast.makeText(context, "Error loading timetable: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            allEntries = FirebaseRepository.getTimetable()
+            filterList()
         }
     }
 
-    private fun filterTimetable() {
+    private fun filterList() {
         val filtered = if (selectedDay == "All") {
             allEntries
         } else {
             allEntries.filter { it.dayOfWeek.equals(selectedDay, ignoreCase = true) }
         }
 
-        if (filtered.isEmpty()) {
-            tvEmpty.visibility = View.VISIBLE
-            rvTimetable.visibility = View.GONE
-        } else {
-            tvEmpty.visibility = View.GONE
-            rvTimetable.visibility = View.VISIBLE
-            adapter.updateList(filtered)
-        }
+        adapter.updateList(filtered)
+        layoutEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun showAddClassDialog() {
-        val ctx = requireContext()
-        val layout = android.widget.LinearLayout(ctx).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
+        val view = layoutInflater.inflate(R.layout.dialog_add_class, null)
+        val etSub = view.findViewById<EditText>(R.id.etSubName)
+        val etCode = view.findViewById<EditText>(R.id.etSubCode)
+        val spDay = view.findViewById<Spinner>(R.id.spDay)
+        val etStart = view.findViewById<EditText>(R.id.etStart)
+        val etEnd = view.findViewById<EditText>(R.id.etEnd)
+        val etRoom = view.findViewById<EditText>(R.id.etRoom)
+        val etFaculty = view.findViewById<EditText>(R.id.etFaculty)
+
+        val days = arrayOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+        val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, days)
+        spDay.adapter = spinnerAdapter
+        if (selectedDay != "All") {
+            val idx = days.indexOf(selectedDay)
+            if (idx >= 0) spDay.setSelection(idx)
         }
 
-        val etSubject = EditText(ctx).apply { hint = "Subject Name (e.g. Operating Systems)" }
-        val etCode = EditText(ctx).apply { hint = "Subject Code (e.g. CS301)" }
-        val etDay = EditText(ctx).apply {
-            hint = "Day of Week"
-            setText(if (selectedDay != "All") selectedDay else "Monday")
-        }
-        val etStart = EditText(ctx).apply { hint = "Start Time (09:00)"; setText("09:00") }
-        val etEnd = EditText(ctx).apply { hint = "End Time (10:30)"; setText("10:30") }
-        val etRoom = EditText(ctx).apply { hint = "Classroom (Hall 101)"; setText("Hall 101") }
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Class Schedule")
+            .setView(view)
+            .setPositiveButton("Schedule") { _, _ ->
+                val name = etSub.text.toString().trim()
+                val code = etCode.text.toString().trim()
+                val day = spDay.selectedItem.toString()
+                val start = etStart.text.toString().trim().ifEmpty { "09:00" }
+                val end = etEnd.text.toString().trim().ifEmpty { "10:30" }
+                val room = etRoom.text.toString().trim().ifEmpty { "Hall 101" }
+                val faculty = etFaculty.text.toString().trim()
 
-        layout.addView(etSubject)
-        layout.addView(etCode)
-        layout.addView(etDay)
-        layout.addView(etStart)
-        layout.addView(etEnd)
-        layout.addView(etRoom)
-
-        AlertDialog.Builder(ctx)
-            .setTitle("Add Class Slot")
-            .setView(layout)
-            .setPositiveButton("Save") { _, _ ->
-                val subName = etSubject.text.toString().trim()
-                val subCode = etCode.text.toString().trim()
-                val day = etDay.text.toString().trim()
-                val start = etStart.text.toString().trim()
-                val end = etEnd.text.toString().trim()
-                val room = etRoom.text.toString().trim()
-
-                if (subName.isEmpty() || subCode.isEmpty()) {
-                    Toast.makeText(ctx, "Subject Name and Code required", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                // Check conflict
-                val conflict = AcademicCalculators.checkTimetableConflict(allEntries, day, start, end)
-                if (conflict != null) {
-                    Toast.makeText(ctx, "Collision warning: overlaps with ${conflict.subjectName} (${conflict.startTime}-${conflict.endTime})", Toast.LENGTH_LONG).show()
-                }
-
-                viewLifecycleOwner.lifecycleScope.launch {
-                    var subject = subjectsList.find { it.code.equals(subCode, ignoreCase = true) }
-                    if (subject == null) {
-                        subject = FirebaseRepository.addSubject(subName, subCode, "")
+                if (name.isNotEmpty()) {
+                    // Collision check
+                    val conflict = AcademicCalculators.checkTimetableConflict(allEntries, day, start, end)
+                    if (conflict != null) {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("⚠️ Timetable Collision Warning")
+                            .setMessage("Conflict detected with existing class '${conflict.subjectName}' scheduled from ${conflict.startTime} to ${conflict.endTime} in ${conflict.classroom}.\n\nDo you want to proceed and save anyway?")
+                            .setPositiveButton("Yes, Save") { _, _ ->
+                                saveEntry(name, code, day, start, end, room, faculty)
+                            }
+                            .setNegativeButton("Adjust Time", null)
+                            .show()
+                    } else {
+                        saveEntry(name, code, day, start, end, room, faculty)
                     }
-
-                    FirebaseRepository.addTimetableEntry(
-                        TimetableEntry(
-                            subjectId = subject.id,
-                            subjectName = subName,
-                            subjectCode = subCode,
-                            dayOfWeek = day,
-                            startTime = start,
-                            endTime = end,
-                            classroom = room
-                        )
-                    )
-                    Toast.makeText(ctx, "Class scheduled in Firestore!", Toast.LENGTH_SHORT).show()
-                    loadTimetable()
+                } else {
+                    Toast.makeText(context, "Subject name is required", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun saveEntry(name: String, code: String, day: String, start: String, end: String, room: String, faculty: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val entry = TimetableEntry(
+                subjectName = name,
+                subjectCode = code,
+                dayOfWeek = day,
+                startTime = start,
+                endTime = end,
+                classroom = room,
+                facultyName = faculty
+            )
+            FirebaseRepository.addTimetableEntry(entry)
+            Toast.makeText(context, "Class scheduled on $day", Toast.LENGTH_SHORT).show()
+            loadTimetable()
+        }
     }
 }

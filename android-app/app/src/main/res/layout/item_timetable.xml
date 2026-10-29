@@ -1,89 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="1dp">
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_neumorphic_card"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <View
+        android:id="@+id/viewColorBar"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_pill_safe" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="14dp">
-
-        <View
-            android:id="@+id/viewColorBar"
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="@color/brand_primary" />
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvDayBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/slate_100"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
-                    android:text="Monday"
-                    android:textColor="@color/slate_700"
-                    android:textSize="9sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvSubjectCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="CS301"
-                    android:textColor="@color/slate_500"
-                    android:textSize="11sp" />
-            </LinearLayout>
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvSubjectName"
-                android:layout_width="match_parent"
+                android:id="@+id/tvDayBadge"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Operating Systems"
-                android:textColor="@color/slate_900"
-                android:textSize="14sp"
+                android:background="@drawable/bg_pill_neutral"
+                android:text="Monday"
+                android:textColor="@color/text_primary"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvClassDetails"
-                android:layout_width="match_parent"
+                android:id="@+id/tvSubjectCode"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Hall 101 • Dr. Miller"
-                android:textColor="@color/slate_500"
-                android:textSize="11sp" />
+                android:layout_marginStart="8dp"
+                android:text="CS301"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvTimeSlot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_safe"
+                android:text="09:00 - 10:30"
+                android:textColor="@color/status_safe"
+                android:textSize="11sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvClassTime"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvSubjectName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="09:00 - 10:30"
-            android:textColor="@color/brand_primary"
-            android:textSize="12sp"
+            android:layout_marginTop="6dp"
+            android:text="Data Structures &amp; Algorithms"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
             android:textStyle="bold" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvClassroom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hall 101"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvFaculty"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=" • Prof. Alan Turing"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <ImageView
+                android:id="@+id/btnDeleteTimetable"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/text_muted" />
+        </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</LinearLayout>

@@ -9,7 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageButton
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -23,17 +24,18 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private lateinit var rvMessages: RecyclerView
     private lateinit var etMessage: EditText
-    private lateinit var btnVoice: ImageButton
-    private lateinit var btnSend: ImageButton
+    private lateinit var btnVoice: FrameLayout
+    private lateinit var btnSend: FrameLayout
 
     private lateinit var adapter: ChatAdapter
     private var tts: TextToSpeech? = null
+    private val messagesList = mutableListOf<ChatMessage>()
 
     private val speechLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+            val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
             if (!spokenText.isNullOrEmpty()) {
                 etMessage.setText(spokenText)
                 sendMessage(spokenText)
@@ -52,7 +54,7 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(requireContext(), this)
 
-        adapter = ChatAdapter(emptyList()) { textToSpeak ->
+        adapter = ChatAdapter(messagesList) { textToSpeak ->
             tts?.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null, "AcademiaLifeTTS")
         }
 
@@ -60,6 +62,23 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
             stackFromEnd = true
         }
         rvMessages.adapter = adapter
+
+        // Setup Quick Prompts
+        root.findViewById<TextView>(R.id.promptTodayClasses)?.setOnClickListener {
+            sendMessage("What classes do I have scheduled for today?")
+        }
+
+        root.findViewById<TextView>(R.id.promptAttendance)?.setOnClickListener {
+            sendMessage("Can you summarize my attendance percentage and compliance risk?")
+        }
+
+        root.findViewById<TextView>(R.id.promptUrgentTasks)?.setOnClickListener {
+            sendMessage("What are my top priority tasks and exam deadlines?")
+        }
+
+        root.findViewById<TextView>(R.id.promptStudyPlan)?.setOnClickListener {
+            sendMessage("What study sessions do I have planned or need to schedule?")
+        }
 
         btnSend.setOnClickListener {
             val text = etMessage.text.toString().trim()
@@ -69,63 +88,62 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
         }
 
         btnVoice.setOnClickListener {
-            startVoiceRecognition()
+            startSpeechRecognition()
         }
 
-        // Add welcome message
-        adapter.addMessage(
-            ChatMessage(
-                role = "assistant",
-                content = "Hello! I am your AcademiaLife AI tutor. You can ask me:\n• What classes do I have today?\n• Check my attendance compliance standing\n• Which assignments or exams are due soon?"
+        // Welcome Message
+        if (messagesList.isEmpty()) {
+            messagesList.add(
+                ChatMessage(
+                    id = "msg_welcome",
+                    role = "assistant",
+                    content = "Hello! I am your AcademiaLife AI tutor. I have live access to your timetable, assignment priorities, and attendance compliance.\n\nAsk me anything or tap the microphone to speak!",
+                    sources = "Source: Live Academic Assistant Core"
+                )
             )
-        )
+            adapter.notifyDataSetChanged()
+        }
 
         return root
     }
 
-    private fun startVoiceRecognition() {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Ask your Academic Assistant...")
-        }
+    private fun startSpeechRecognition() {
         try {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Ask AcademiaLife AI Tutor...")
+            }
             speechLauncher.launch(intent)
         } catch (_: Exception) {
-            Toast.makeText(context, "Voice recognition not supported on this device.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Voice recognition is not supported on this device.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun sendMessage(query: String) {
-        etMessage.text.clear()
-        adapter.addMessage(ChatMessage(role = "user", content = query))
-        rvMessages.scrollToPosition(adapter.itemCount - 1)
+    private fun sendMessage(queryText: String) {
+        val userMsg = ChatMessage(role = "user", content = queryText)
+        messagesList.add(userMsg)
+        adapter.notifyItemInserted(messagesList.size - 1)
+        rvMessages.smoothScrollToPosition(messagesList.size - 1)
+        etMessage.setText("")
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val assistantMsg = FirebaseRepository.answerQuestion(query)
-                adapter.addMessage(assistantMsg)
-                rvMessages.scrollToPosition(adapter.itemCount - 1)
-            } catch (e: Exception) {
-                adapter.addMessage(
-                    ChatMessage(
-                        role = "assistant",
-                        content = "Sorry, I encountered an issue analyzing your coursework records: ${e.message}"
-                    )
-                )
-            }
+            val reply = FirebaseRepository.answerQuestion(queryText)
+            messagesList.add(reply)
+            adapter.notifyItemInserted(messagesList.size - 1)
+            rvMessages.smoothScrollToPosition(messagesList.size - 1)
         }
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale.US
+            tts?.language = Locale.getDefault()
         }
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         tts?.stop()
         tts?.shutdown()
-        super.onDestroy()
     }
 }

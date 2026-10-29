@@ -9,7 +9,15 @@ data class StudentProfile(
     val semester: String = "Semester 6",
     val academicYear: String = "2026-2027",
     val minimumAttendanceTarget: Double = 75.0,
-    val preferredStudyHoursPerDay: Double = 4.0
+    val preferredStudyHoursPerDay: Double = 4.0,
+    val preferredBreakDurationMinutes: Int = 15
+)
+
+data class UserPreferences(
+    val theme: String = "light_neumorphic",
+    val attendanceWarningThreshold: Double = 75.0,
+    val soundEnabled: Boolean = true,
+    val reminderHoursBeforeDeadline: Int = 24
 )
 
 data class Subject(
@@ -18,7 +26,7 @@ data class Subject(
     val name: String = "",
     val code: String = "",
     val faculty: String = "",
-    val color: String = "#4F46E5",
+    val color: String = "#8175E5",
     val targetAttendance: Double = 75.0
 )
 
@@ -28,7 +36,7 @@ data class TimetableEntry(
     val subjectId: String = "",
     val subjectName: String = "",
     val subjectCode: String = "",
-    val subjectColor: String = "#4F46E5",
+    val subjectColor: String = "#8175E5",
     val dayOfWeek: String = "Monday",
     val startTime: String = "09:00",
     val endTime: String = "10:30",
@@ -43,7 +51,7 @@ data class Task(
     val subjectId: String = "",
     val subjectName: String = "",
     val subjectCode: String = "",
-    val subjectColor: String = "#4F46E5",
+    val subjectColor: String = "#8175E5",
     val title: String = "",
     val description: String = "",
     val taskType: String = "assignment", // assignment, examination, project, revision
@@ -100,12 +108,62 @@ data class Assessment(
     val subjectName: String = "",
     val subjectCode: String = "",
     val assessmentName: String = "",
-    val assessmentType: String = "Quiz",
+    val assessmentType: String = "Quiz", // Midterm, Final, Quiz, Lab, Assignment
     val marksObtained: Double = 0.0,
     val maximumMarks: Double = 20.0,
     val percentage: Double = 0.0,
     val assessmentDate: String = "",
     val notes: String = ""
+)
+
+data class SubjectPerformanceSummary(
+    val subjectId: String,
+    val subjectName: String,
+    val subjectCode: String,
+    val assessmentCount: Int,
+    val averagePercentage: Double,
+    val highestPercentage: Double,
+    val lowestPercentage: Double
+)
+
+data class StudySession(
+    val id: String = "",
+    val userId: String = "",
+    val subjectId: String = "",
+    val subjectName: String = "",
+    val subjectCode: String = "",
+    val taskId: String = "",
+    val taskTitle: String = "",
+    val title: String = "",
+    val sessionDate: String = "",
+    val startTime: String = "18:00",
+    val endTime: String = "19:30",
+    val durationMinutes: Int = 90,
+    val status: String = "scheduled", // scheduled, completed, skipped
+    val recommendationReason: String = "Self-scheduled study block"
+)
+
+data class VaultDocument(
+    val id: String = "",
+    val userId: String = "",
+    val subjectId: String = "",
+    val subjectName: String = "",
+    val title: String = "",
+    val category: String = "Lecture Notes", // Syllabus, Lecture Notes, Question Papers, Cheatsheets, References
+    val fileUrl: String = "",
+    val fileSizeKb: Int = 120,
+    val notes: String = "",
+    val createdAt: String = ""
+)
+
+data class NotificationItem(
+    val id: String = "",
+    val userId: String = "",
+    val title: String = "",
+    val message: String = "",
+    val type: String = "general", // attendance_warning, deadline, exam, study_plan, general
+    val isRead: Boolean = false,
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 data class ChatMessage(
@@ -114,4 +172,12 @@ data class ChatMessage(
     val content: String = "",
     val sources: String = "",
     val timestamp: Long = System.currentTimeMillis()
+)
+
+data class SearchResultItem(
+    val id: String,
+    val category: String, // Timetable, Task, Attendance, Assessment, Document
+    val title: String,
+    val subtitle: String,
+    val details: String = ""
 )

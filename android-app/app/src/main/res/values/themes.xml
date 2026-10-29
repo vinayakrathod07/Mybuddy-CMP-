@@ -1,17 +1,37 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme: Lavender Cloud Neumorphism. -->
     <style name="Theme.AcademiaLife" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/brand_primary</item>
+        <!-- Primary lavender brand color -->
+        <item name="colorPrimary">@color/lavender_primary</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorPrimaryContainer">@color/slate_100</item>
-        <item name="colorOnPrimaryContainer">@color/slate_900</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="colorPrimaryContainer">@color/lavender_surface</item>
+        <item name="colorOnPrimaryContainer">@color/lavender_deep</item>
+        
+        <!-- Deep lavender secondary -->
+        <item name="colorSecondary">@color/lavender_deep</item>
         <item name="colorOnSecondary">@color/white</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/slate_900</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowBackground">@color/slate_50</item>
+        
+        <!-- Lavender Cloud Canvas & Surfaces -->
+        <item name="android:windowBackground">@color/lavender_bg</item>
+        <item name="colorSurface">@color/lavender_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- Status bar and Navigation bar -->
+        <item name="android:statusBarColor">@color/lavender_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/lavender_bg</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <!-- Neumorphic Dialog styling -->
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.AcademiaLife.MaterialAlertDialog</item>
+    </style>
+
+    <style name="ThemeOverlay.AcademiaLife.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.AcademiaLife.Dialog</item>
+        <item name="colorSurface">@color/lavender_card</item>
+    </style>
+
+    <style name="ShapeAppearance.AcademiaLife.Dialog" parent="">
+        <item name="cornerSize">22dp</item>
     </style>
 </resources>

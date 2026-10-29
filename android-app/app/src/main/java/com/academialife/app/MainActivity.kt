@@ -3,8 +3,10 @@ package com.academialife.app
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,54 +20,69 @@ class MainActivity : AppCompatActivity() {
         topAppBar = findViewById(R.id.topAppBar)
         bottomNav = findViewById(R.id.bottom_navigation)
 
+        // Initialize Firebase Anonymous/Auth in background
+        lifecycleScope.launch {
+            FirebaseRepository.ensureAuthenticated()
+        }
+
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.action_search -> {
+                    navigateTo(SearchFragment(), "Search Hub")
+                    true
+                }
+                R.id.action_notifications -> {
+                    navigateTo(NotificationsFragment(), "Alerts & Notifications")
+                    true
+                }
                 R.id.action_chat -> {
-                    replaceFragment(AIChatFragment(), "AI Assistant")
+                    navigateTo(AIChatFragment(), "AI Tutor Assistant")
+                    true
+                }
+                R.id.action_profile -> {
+                    navigateTo(ProfileFragment(), "Student Profile & Settings")
                     true
                 }
                 else -> false
             }
         }
-
-        // Add Chat icon to top app bar
-        topAppBar.inflateMenu(R.menu.top_app_bar_menu)
 
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_dashboard -> {
-                    replaceFragment(DashboardFragment(), "AcademiaLife")
+                    navigateTo(DashboardFragment(), "AcademiaLife")
                     true
                 }
                 R.id.navigation_timetable -> {
-                    replaceFragment(TimetableFragment(), "Timetable Schedule")
+                    navigateTo(TimetableFragment(), "Timetable Schedule")
                     true
                 }
                 R.id.navigation_tasks -> {
-                    replaceFragment(TasksFragment(), "Tasks & Exams")
+                    navigateTo(TasksFragment(), "Tasks & Examinations")
+                    true
+                }
+                R.id.navigation_study -> {
+                    navigateTo(StudyPlannerFragment(), "Study Planner & Timer")
                     true
                 }
                 R.id.navigation_attendance -> {
-                    replaceFragment(AttendanceFragment(), "Attendance Compliance")
-                    true
-                }
-                R.id.navigation_marks -> {
-                    replaceFragment(MarksAnalyticsFragment(), "Marks & Analytics")
+                    navigateTo(AttendanceFragment(), "Attendance Compliance")
                     true
                 }
                 else -> false
             }
         }
 
-        // Default screen: Dashboard
+        // Default landing screen: Dashboard
         if (savedInstanceState == null) {
-            replaceFragment(DashboardFragment(), "AcademiaLife")
+            navigateTo(DashboardFragment(), "AcademiaLife")
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, title: String) {
+    fun navigateTo(fragment: Fragment, title: String) {
         topAppBar.title = title
         supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.fragment_container, fragment)
             .commit()
     }
