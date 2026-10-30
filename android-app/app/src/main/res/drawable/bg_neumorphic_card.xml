@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Bottom-right soft lavender-gray shadow -->
+    <!-- Ambient subtle shadow layer -->
     <item
-        android:left="3dp"
-        android:top="3dp">
+        android:left="1dp"
+        android:top="2dp"
+        android:right="1dp"
+        android:bottom="2dp">
         <shape android:shape="rectangle">
             <corners android:radius="22dp" />
             <solid android:color="@color/lavender_dark_shadow" />
         </shape>
     </item>
 
-    <!-- Top-left subtle white highlight -->
+    <!-- Crisp modern card surface -->
     <item
-        android:right="3dp"
-        android:bottom="3dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="22dp" />
-            <solid android:color="@color/lavender_light_shadow" />
-        </shape>
-    </item>
-
-    <!-- Raised card surface (Lavender Cloud #F5F3FF) -->
-    <item
-        android:left="1.5dp"
-        android:top="1.5dp"
-        android:right="1.5dp"
+        android:left="0.5dp"
+        android:top="0.5dp"
+        android:right="0.5dp"
         android:bottom="1.5dp">
         <shape android:shape="rectangle">
             <corners android:radius="22dp" />
-            <solid android:color="@color/lavender_card" />
+            <solid android:color="@color/white" />
             <stroke
                 android:width="1dp"
-                android:color="@color/lavender_light_shadow" />
+                android:color="@color/neu_border_subtle" />
         </shape>
     </item>
 </layer-list>

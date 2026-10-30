@@ -204,9 +204,9 @@ This is a learning-focused project, and suggestions are welcome.
 
 Please describe the change clearly and include screenshots for UI improvements where useful.
 
-## 👨‍💻 About the Developer
+## 👨‍💻 Developed and Managed by
 
-**Vinayak Rathod**  
+**Vinay Rathod**  
 BCA Student | Aspiring Software Developer | Interested in Android Development, Web Technologies, AI, and Data Analysis
 
 - GitHub: [@vinayakrathod07](https://github.com/vinayakrathod07)

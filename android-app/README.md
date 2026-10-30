@@ -86,3 +86,10 @@ android-app/app/src/main/java/com/academialife/app/
 ├── AIChatFragment.kt             # AI Academic Assistant with SpeechRecognizer and TextToSpeech
 └── ChatAdapter.kt                # Neumorphic chat bubbles with read-aloud TTS button
 ```
+
+---
+
+## 👨‍💻 Credits & Attribution
+
+**Developed and Managed by Vinay Rathod**
+

@@ -36,7 +36,20 @@ class TimetableAdapter(
         holder.tvSubjectName.text = item.subjectName.ifEmpty { item.subjectCode }
         holder.tvClassroom.text = if (item.classroom.isNotEmpty()) "Room ${item.classroom}" else "Hall 101"
         holder.tvFaculty.text = item.facultyName.ifEmpty { "Department Faculty" }
-        holder.tvTimeSlot.text = "${item.startTime} - ${item.endTime}"
+        val now = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+        val today = java.text.SimpleDateFormat("EEEE", java.util.Locale.ENGLISH).format(java.util.Date())
+        val isToday = item.dayOfWeek.equals(today, ignoreCase = true)
+        val isOngoing = isToday && now >= item.startTime && now <= item.endTime
+
+        if (isOngoing) {
+            holder.tvTimeSlot.text = "● LIVE NOW (${item.startTime} - ${item.endTime})"
+            holder.tvTimeSlot.setBackgroundResource(R.drawable.bg_pill_warning)
+            holder.tvTimeSlot.setTextColor(androidx.core.content.ContextCompat.getColor(holder.itemView.context, R.color.status_warning))
+        } else {
+            holder.tvTimeSlot.text = "${item.startTime} - ${item.endTime}"
+            holder.tvTimeSlot.setBackgroundResource(R.drawable.bg_pill_safe)
+            holder.tvTimeSlot.setTextColor(androidx.core.content.ContextCompat.getColor(holder.itemView.context, R.color.status_safe))
+        }
 
         try {
             holder.colorBar.setBackgroundColor(Color.parseColor(item.subjectColor))

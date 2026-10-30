@@ -77,6 +77,33 @@ object FirebaseRepository {
         }
     }
 
+    suspend fun signInWithGoogleCredential(idToken: String): Pair<Boolean, String?> {
+        return try {
+            val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+            val res = auth.signInWithCredential(credential).await()
+            val user = res.user ?: return Pair(false, "Google authentication returned null user")
+            val uid = user.uid
+            
+            // Check if profile exists, if not initialize
+            try {
+                val doc = firestore.collection("users").document(uid).get().await()
+                if (!doc.exists()) {
+                    val profile = StudentProfile(
+                        userId = uid,
+                        email = user.email ?: "",
+                        fullName = user.displayName?.ifEmpty { "Student" } ?: "Student"
+                    )
+                    saveProfile(profile)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FirebaseRepository", "Profile init error: ${e.message}")
+            }
+            Pair(true, null)
+        } catch (e: Exception) {
+            Pair(false, e.localizedMessage ?: e.message ?: "Google Sign-In failed")
+        }
+    }
+
     fun signOut() {
         auth.signOut()
     }

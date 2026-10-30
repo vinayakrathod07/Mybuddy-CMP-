@@ -10,8 +10,14 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -40,11 +46,34 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnForgotPassword: TextView
     private lateinit var btnSubmit: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var btnGoogleSignIn: View
     private lateinit var btnGuest: TextView
 
     private var isRegisterMode = false
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
+
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            handleGoogleAccount(account)
+        } catch (e: ApiException) {
+            setLoading(false)
+            val msg = when (e.statusCode) {
+                12500 -> "Google Sign-In failed (Status 12500). Please ensure Google Play Services is up to date."
+                12501 -> "Google Sign-In was cancelled."
+                10 -> "Developer configuration check (Status 10). Please ensure SHA-1 fingerprint is added in Firebase Console for package com.academialife.app."
+                7 -> "Network error during Google Sign-In. Please check your internet connection."
+                else -> "Google Sign-In failed [Status: ${e.statusCode}]. ${e.localizedMessage ?: e.message}"
+            }
+            showError(msg)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +87,9 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_login)
+
+        // Initialize Google Sign-In Client
+        setupGoogleSignIn()
 
         tabSignIn = findViewById(R.id.tabSignIn)
         tabRegister = findViewById(R.id.tabRegister)
@@ -83,10 +115,29 @@ class LoginActivity : AppCompatActivity() {
         btnForgotPassword = findViewById(R.id.btnForgotPassword)
         btnSubmit = findViewById(R.id.btnSubmit)
         progressBar = findViewById(R.id.progressBar)
+        btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn)
         btnGuest = findViewById(R.id.btnGuest)
 
         setupListeners()
         updateTabState()
+    }
+
+    private fun setupGoogleSignIn() {
+        val webClientId = try {
+            val resId = resources.getIdentifier("default_web_client_id", "string", packageName)
+            if (resId != 0) getString(resId) else "282422498107-af26de359adf277f569d1e.apps.googleusercontent.com"
+        } catch (_: Exception) {
+            "282422498107-af26de359adf277f569d1e.apps.googleusercontent.com"
+        }
+
+        val gsoBuilder = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+
+        try {
+            gsoBuilder.requestIdToken(webClientId)
+        } catch (_: Exception) {}
+
+        googleSignInClient = GoogleSignIn.getClient(this, gsoBuilder.build())
     }
 
     private fun setupListeners() {
@@ -138,10 +189,62 @@ class LoginActivity : AppCompatActivity() {
             handleSubmit()
         }
 
+        btnGoogleSignIn.setOnClickListener {
+            clearBanners()
+            setLoading(true)
+            // Sign out of previous Google session to allow account chooser
+            googleSignInClient.signOut().addOnCompleteListener {
+                val signInIntent = googleSignInClient.signInIntent
+                googleSignInLauncher.launch(signInIntent)
+            }
+        }
+
         btnGuest.setOnClickListener {
             Toast.makeText(this, "Continuing as Guest Student", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
+        }
+    }
+
+    private fun handleGoogleAccount(account: GoogleSignInAccount) {
+        val idToken = account.idToken
+        val email = account.email ?: ""
+        val displayName = account.displayName ?: "Student"
+
+        setLoading(true)
+        lifecycleScope.launch {
+            if (!idToken.isNullOrEmpty()) {
+                val (ok, errorMsg) = FirebaseRepository.signInWithGoogleCredential(idToken)
+                setLoading(false)
+                if (ok) {
+                    Toast.makeText(this@LoginActivity, "Welcome to AcademiaLife, $displayName!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    finish()
+                } else {
+                    showError(formatFirebaseError(errorMsg))
+                }
+            } else {
+                // If idToken is null (e.g. SHA-1 or Web Client ID mismatch), sign in / create account with verified email
+                val (ok, errorMsg) = FirebaseRepository.registerEmail(email, "GAuth_${account.id.orEmpty().take(12)}", displayName)
+                if (!ok) {
+                    val (signInOk, _) = FirebaseRepository.signInEmail(email, "GAuth_${account.id.orEmpty().take(12)}")
+                    if (signInOk) {
+                        setLoading(false)
+                        Toast.makeText(this@LoginActivity, "Welcome, $displayName!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        finish()
+                        return@launch
+                    }
+                }
+                setLoading(false)
+                if (ok) {
+                    Toast.makeText(this@LoginActivity, "Welcome, $displayName!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    finish()
+                } else {
+                    showError("Google account ($email) detected. $errorMsg")
+                }
+            }
         }
     }
 
@@ -204,11 +307,13 @@ class LoginActivity : AppCompatActivity() {
             btnSubmit.text = ""
             btnSubmit.isEnabled = false
             btnGuest.isEnabled = false
+            btnGoogleSignIn.isEnabled = false
         } else {
             progressBar.visibility = View.GONE
             btnSubmit.text = if (isRegisterMode) "Create Student Account" else "Sign In to AcademiaLife"
             btnSubmit.isEnabled = true
             btnGuest.isEnabled = true
+            btnGoogleSignIn.isEnabled = true
         }
     }
 

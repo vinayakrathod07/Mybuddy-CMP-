@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Student Academic Assistant • Lavender Cloud"
+            android:text="Student Academic Assistant"
             android:textColor="@color/text_secondary"
             android:textSize="13sp" />
 
@@ -360,27 +360,58 @@
                 android:background="@color/lavender_divider" />
         </LinearLayout>
 
+        <!-- Google Sign In Button (Modern Neumorphic) -->
+        <LinearLayout
+            android:id="@+id/btnGoogleSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_neumorphic_btn"
+            android:clickable="true"
+            android:elevation="3dp"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_google"
+                android:contentDescription="Google Logo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Continue with Google"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
         <!-- Guest Access Button -->
         <TextView
             android:id="@+id/btnGuest"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:background="@drawable/bg_neumorphic_btn"
-            android:elevation="3dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_neumorphic_sunken"
             android:gravity="center"
             android:text="Continue as Guest Student"
-            android:textColor="@color/lavender_deep"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- Footer Note -->
+        <!-- Developer Credits -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="☁️ Powered by Firebase • End-to-End Cloud Sync"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="16dp"
+            android:text="Developed and Managed by Vinay Rathod"
+            android:textColor="@color/lavender_deep"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
 
     </LinearLayout>
 </ScrollView>

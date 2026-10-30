@@ -70,6 +70,19 @@ class TimetableFragment : Fragment() {
             filterList()
         }
 
+        // Auto-select current day of week on launch
+        val today = java.text.SimpleDateFormat("EEEE", java.util.Locale.ENGLISH).format(java.util.Date())
+        val initialChipId = when (today) {
+            "Monday" -> R.id.chipMonday
+            "Tuesday" -> R.id.chipTuesday
+            "Wednesday" -> R.id.chipWednesday
+            "Thursday" -> R.id.chipThursday
+            "Friday" -> R.id.chipFriday
+            "Saturday" -> R.id.chipSaturday
+            else -> R.id.chipAll
+        }
+        chipGroup.check(initialChipId)
+
         fabAdd.setOnClickListener {
             showAddClassDialog()
         }

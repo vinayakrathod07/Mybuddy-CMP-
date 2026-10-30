@@ -620,5 +620,17 @@
             android:textSize="13sp"
             android:visibility="gone" />
 
+        <!-- Dashboard Footer Credits -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="Developed and Managed by Vinay Rathod"
+            android:textColor="@color/text_disabled"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium" />
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
