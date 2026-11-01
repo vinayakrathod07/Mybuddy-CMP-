@@ -11,24 +11,53 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Screen Heading (Lavender Cloud) -->
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Screen Heading + AI Doc Scan Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Document Vault"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="12dp"
-            android:text="Syllabus, lecture slides, question papers, and cheatsheets"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Document Vault"
+                    android:textColor="@color/text_primary"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Syllabus, lecture notes, question papers, and cheatsheets"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnScanDocAI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="9dp"
+                android:text="📷 Scan (AI)"
+                android:textColor="@color/lavender_primary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <!-- Search Bar (Neumorphic Inset) -->
         <EditText

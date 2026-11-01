@@ -34,4 +34,11 @@
     <style name="ShapeAppearance.AcademiaLife.Dialog" parent="">
         <item name="cornerSize">22dp</item>
     </style>
+
+    <style name="Widget.MyBuddy.BottomNav.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">#267952F2</item>
+        <item name="android:width">60dp</item>
+        <item name="android:height">32dp</item>
+        <item name="cornerSize">16dp</item>
+    </style>
 </resources>

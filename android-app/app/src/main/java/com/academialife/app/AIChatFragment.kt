@@ -132,6 +132,22 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
             sendMessage("What is my proactive academic strategy for today?")
         }
 
+        root.findViewById<TextView>(R.id.promptQuiz)?.setOnClickListener {
+            sendMessage("Dost, give me a quick 3-question quiz to test my concepts!")
+        }
+
+        root.findViewById<TextView>(R.id.promptMnemonic)?.setOnClickListener {
+            sendMessage("Share a clever memory mnemonic or study hack with me!")
+        }
+
+        root.findViewById<TextView>(R.id.promptSprint)?.setOnClickListener {
+            sendMessage("Give me a 20-minute hyper-focused study sprint breakdown.")
+        }
+
+        root.findViewById<TextView>(R.id.promptGrowthCheck)?.setOnClickListener {
+            sendMessage("Analyze my academic growth, marks, and attendance status.")
+        }
+
         btnSend.setOnClickListener {
             val text = etMessage.text.toString().trim()
             if (text.isNotEmpty()) {

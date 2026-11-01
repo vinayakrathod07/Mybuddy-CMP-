@@ -913,6 +913,11 @@ object FirebaseRepository {
         val isDeadlockQuery = queryLower.contains("deadlock")
         val isNormalizationQuery = queryLower.contains("normalization") || queryLower.contains("bcnf") || queryLower.contains("normal form")
         val isStudyTipsQuery = queryLower.contains("study tip") || queryLower.contains("how to study") || queryLower.contains("feynman") || queryLower.contains("active recall")
+        val isQuizQuery = queryLower.contains("quiz") || queryLower.contains("test my") || queryLower.contains("ask me a question") || queryLower.contains("test me")
+        val isMnemonicQuery = queryLower.contains("mnemonic") || queryLower.contains("memory hack") || queryLower.contains("acronym") || queryLower.contains("trick to remember")
+        val isSprintQuery = queryLower.contains("sprint") || queryLower.contains("20-min") || queryLower.contains("cram") || queryLower.contains("quick revision")
+        val isGrowthQuery = queryLower.contains("growth") || queryLower.contains("diagnostic") || queryLower.contains("how am i doing") || queryLower.contains("analyze my")
+        val isStressQuery = queryLower.contains("stress") || queryLower.contains("anxious") || queryLower.contains("overwhelm") || queryLower.contains("tension") || queryLower.contains("nervous") || queryLower.contains("chinta") || queryLower.contains("dar")
 
         if (isWaterCommand) {
             val newGlasses = incrementWater()
@@ -971,6 +976,61 @@ object FirebaseRepository {
                     "3. 25/5 Pomodoro: 25 minutes of 100% phone-free focus followed by a 5-minute break.\n" +
                     "4. Spaced Repetition: Review notes at day 1, day 3, day 7, and day 14 to lock information into long-term memory."
             sourceText = "Dost Academic Advice"
+        } else if (isQuizQuery) {
+            answer = "🎯 Rapid Concept Quiz (Operating Systems & DBMS):\n\n" +
+                    "Q1. Which scheduling algorithm can lead to starvation if aging is not implemented?\n" +
+                    "👉 Answer: Priority Scheduling!\n\n" +
+                    "Q2. What normal form eliminates partial dependency on a composite primary key?\n" +
+                    "👉 Answer: Second Normal Form (2NF)!\n\n" +
+                    "Q3. In TCP/IP, which protocol operates at the Transport layer and provides reliable, ordered byte streams?\n" +
+                    "👉 Answer: TCP (Transmission Control Protocol)!\n\n" +
+                    "⚡ Great job dost! Want to test another subject? Just ask 'Quiz me on Data Structures'!"
+            sourceText = "Dost Interactive Quiz"
+        } else if (isMnemonicQuery) {
+            answer = "🧠 Dost's Golden Memory Mnemonics:\n\n" +
+                    "1. OSI 7 Layers (Bottom to Top):\n" +
+                    "   'Please Do Not Throw Sausage Pizza Away'\n" +
+                    "   👉 Physical, Data Link, Network, Transport, Session, Presentation, Application\n\n" +
+                    "2. DBMS Transaction ACID Properties:\n" +
+                    "   👉 Atomicity, Consistency, Isolation, Durability\n\n" +
+                    "3. Coffman Deadlock Conditions:\n" +
+                    "   'Must Hold No Circles' (MHNC)\n" +
+                    "   👉 Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait\n\n" +
+                    "Save this in your Document Vault notes for quick exam revision!"
+            sourceText = "Dost Memory Hacks"
+        } else if (isSprintQuery) {
+            answer = "⏱️ Dost's 20-Minute Hyper-Focused Study Sprint:\n\n" +
+                    "• Min 0 - 3 (Skim & Scope): Skim headings, bold terms, diagrams & summary.\n" +
+                    "• Min 3 - 15 (Deep Dive): Read core definitions & copy key formulas or flowcharts on a rough sheet.\n" +
+                    "• Min 15 - 18 (Active Recall): Close your book/screen! Write down everything you remember.\n" +
+                    "• Min 18 - 20 (Self-Correction): Re-open notes, fill the gaps, and celebrate +25 XP!\n\n" +
+                    "Start a timer now in the Study tab! You've got this, dost! 🚀"
+            sourceText = "Dost Study Sprint Blueprint"
+        } else if (isGrowthQuery) {
+            val assessments = getAssessments()
+            val avgMarks = if (assessments.isNotEmpty()) assessments.map { it.percentage }.average() else 75.0
+            val roundedMarks = Math.round(avgMarks * 10.0) / 10.0
+            val overallAtt = attSummary.overallPercentage
+            val riskLevel = if (overallAtt < 75.0 || roundedMarks < 65.0) "Attention Required ⚠️" else "Healthy & Strong 🌟"
+
+            answer = "📈 Academic Performance Diagnostic for You, Dost:\n\n" +
+                    "• Overall Standing: $riskLevel\n" +
+                    "• Average Assessment Score: $roundedMarks%\n" +
+                    "• Overall Attendance: $overallAtt% across ${attSummary.totalConducted} classes\n" +
+                    "• Active Study Streak: 🔥 ${cachedGamification.streakDays} Days\n\n" +
+                    "💡 Actionable Advice from your senior Dost:\n" +
+                    (if (overallAtt < 75.0) "⚠️ Priority 1: Attend your upcoming lectures consecutively to restore your 75% university margin.\n" else "✅ Great attendance discipline! You are safe from debarment.\n") +
+                    "💡 Schedule a 30-min Pomodoro session in the Study tab to prepare for upcoming midterms!"
+            sourceText = "Source: MyBuddy Growth Diagnostic Engine"
+        } else if (isStressQuery) {
+            answer = "Arey dost, take a slow deep breath! 🧘‍♂️\n\n" +
+                    "College life, assignments, and exams can feel overwhelming, but remember: NO ONE has to conquer the whole syllabus in one night. You just need to win the next 25 minutes.\n\n" +
+                    "Here is what we are going to do right now:\n" +
+                    "1. Drink a glass of water (tap the Water button below).\n" +
+                    "2. Pick ONE small topic or assignment.\n" +
+                    "3. Put your phone on Silent and do a 20-minute focus sprint.\n\n" +
+                    "I am right here with you every step of the way. You are going to do great! 💪"
+            sourceText = "Dost Senior Mentorship"
         } else if (isTimetableQuery) {
             when (language) {
                 "Hindi" -> {

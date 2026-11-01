@@ -30,6 +30,22 @@ object AIVisionAnalyzer {
         val percentage: Double
     )
 
+    data class ExtractedDocument(
+        val title: String,
+        val subjectName: String,
+        val category: String,
+        val notes: String,
+        val rawText: String
+    )
+
+    data class ExtractedMarkItem(
+        val subjectName: String,
+        val assessmentName: String,
+        val marksObtained: Double,
+        val maximumMarks: Double,
+        val percentage: Double
+    )
+
     /**
      * AI-powered photo analyzer for college/school timetables.
      * Uses ML Kit on-device Text Recognition + Intelligent Schedule Parsing heuristics.
@@ -192,6 +208,146 @@ object AIVisionAnalyzer {
             }
         }
 
+        return results
+    }
+
+    /**
+     * AI-powered analyzer for lecture notes, textbook pages, syllabi, and cheatsheets.
+     * Extracts text, determines subject, infers document category, and generates an executive summary.
+     */
+    suspend fun analyzeDocumentPhoto(bitmap: Bitmap): ExtractedDocument {
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        val image = InputImage.fromBitmap(bitmap, 0)
+        val visionText = try {
+            recognizer.process(image).await()
+        } catch (_: Exception) {
+            return ExtractedDocument(
+                title = "Scanned Document",
+                subjectName = "General",
+                category = "Lecture Notes",
+                notes = "Could not extract clear text. Please retake photo with better lighting.",
+                rawText = ""
+            )
+        }
+
+        val raw = visionText.text
+        val lines = raw.lines().map { it.trim() }.filter { it.isNotEmpty() }
+
+        if (lines.isEmpty()) {
+            return ExtractedDocument(
+                title = "Scanned Note",
+                subjectName = "General",
+                category = "Lecture Notes",
+                notes = "No text detected on the page.",
+                rawText = ""
+            )
+        }
+
+        // Infer Subject
+        var detectedSubject = "General"
+        for (subj in COMMON_SUBJECTS) {
+            if (raw.contains(subj, ignoreCase = true)) {
+                detectedSubject = subj
+                break
+            }
+        }
+        if (detectedSubject == "General") {
+            val potential = lines.firstOrNull { l ->
+                l.length in 4..30 && !l.contains(":") && !l.contains("page", ignoreCase = true)
+            }
+            if (potential != null) {
+                detectedSubject = potential
+            }
+        }
+
+        // Infer Category
+        val lower = raw.lowercase()
+        val category = when {
+            lower.contains("syllabus") || lower.contains("module") || lower.contains("unit ") || lower.contains("course outcome") -> "Syllabus"
+            lower.contains("question") || lower.contains("marks") || lower.contains("time: ") || lower.contains("q.no") -> "Past Papers"
+            lower.contains("formula") || lower.contains("cheatsheet") || lower.contains("cheat sheet") || lower.contains("syntax") -> "Cheatsheets"
+            else -> "Lecture Notes"
+        }
+
+        // Generate Title
+        val titleCandidate = lines.firstOrNull { it.length > 5 && !it.startsWith("Chapter", ignoreCase = true) }
+            ?: "$detectedSubject Notes"
+        val title = if (titleCandidate.length > 40) titleCandidate.take(37) + "..." else titleCandidate
+
+        // Build bullet-point summary (up to 8 informative points)
+        val bulletPoints = lines
+            .filter { it.length > 15 && !it.contains("Page", ignoreCase = true) }
+            .take(8)
+            .map { "• " + it }
+            .joinToString("\n")
+
+        val summary = if (bulletPoints.isNotEmpty()) {
+            "📌 AI Key Takeaways:\n$bulletPoints"
+        } else {
+            raw.take(300)
+        }
+
+        return ExtractedDocument(
+            title = title,
+            subjectName = detectedSubject,
+            category = category,
+            notes = summary,
+            rawText = raw
+        )
+    }
+
+    /**
+     * AI-powered analyzer for student marks slips, internal score cards, and grade sheets.
+     */
+    suspend fun analyzeMarksSlip(bitmap: Bitmap): List<ExtractedMarkItem> {
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        val image = InputImage.fromBitmap(bitmap, 0)
+        val visionText = try {
+            recognizer.process(image).await()
+        } catch (_: Exception) {
+            return emptyList()
+        }
+
+        val results = mutableListOf<ExtractedMarkItem>()
+        val lines = visionText.text.lines()
+        val scoreRegex = Regex("""(\d{1,3}(?:\.\d+)?)\s*[/|]\s*(\d{1,3}(?:\.\d+)?)""")
+
+        for (i in lines.indices) {
+            val line = lines[i].trim()
+            val scoreMatch = scoreRegex.find(line)
+            if (scoreMatch != null) {
+                val obtained = scoreMatch.groupValues[1].toDoubleOrNull() ?: 0.0
+                val maxMarks = scoreMatch.groupValues[2].toDoubleOrNull() ?: 20.0
+                val pct = if (maxMarks > 0) Math.round((obtained / maxMarks) * 1000.0) / 10.0 else 0.0
+
+                // Find subject name
+                var subject = line.replace(scoreMatch.value, "").replace(Regex("[:=-]"), "").trim()
+                if (subject.isEmpty() && i > 0) {
+                    subject = lines[i - 1].trim()
+                }
+                if (subject.isEmpty()) {
+                    subject = "Course Assessment"
+                }
+
+                val type = when {
+                    line.contains("mid", ignoreCase = true) || line.contains("cia", ignoreCase = true) -> "Midterm"
+                    line.contains("final", ignoreCase = true) || line.contains("sem", ignoreCase = true) -> "Final Exam"
+                    line.contains("quiz", ignoreCase = true) -> "Quiz"
+                    line.contains("lab", ignoreCase = true) -> "Lab Exam"
+                    else -> "Assignment"
+                }
+
+                results.add(
+                    ExtractedMarkItem(
+                        subjectName = subject.take(35),
+                        assessmentName = "$type - $subject".take(35),
+                        marksObtained = obtained,
+                        maximumMarks = maxMarks,
+                        percentage = pct
+                    )
+                )
+            }
+        }
         return results
     }
 

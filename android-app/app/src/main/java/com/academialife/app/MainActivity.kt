@@ -98,6 +98,16 @@ class MainActivity : AppCompatActivity() {
     fun navigateTo(fragment: Fragment, title: String, subtitle: String = "") {
         topAppBar.title = title
         topAppBar.subtitle = subtitle
+
+        // Synchronize bottom nav selection state
+        when (fragment) {
+            is DashboardFragment -> if (bottomNav.selectedItemId != R.id.navigation_dashboard) bottomNav.menu.findItem(R.id.navigation_dashboard).isChecked = true
+            is TasksFragment -> if (bottomNav.selectedItemId != R.id.navigation_tasks) bottomNav.menu.findItem(R.id.navigation_tasks).isChecked = true
+            is AIChatFragment -> if (bottomNav.selectedItemId != R.id.navigation_dost) bottomNav.menu.findItem(R.id.navigation_dost).isChecked = true
+            is TimetableFragment -> if (bottomNav.selectedItemId != R.id.navigation_timetable) bottomNav.menu.findItem(R.id.navigation_timetable).isChecked = true
+            is LifestyleFragment -> if (bottomNav.selectedItemId != R.id.navigation_lifestyle) bottomNav.menu.findItem(R.id.navigation_lifestyle).isChecked = true
+        }
+
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.fragment_container, fragment)

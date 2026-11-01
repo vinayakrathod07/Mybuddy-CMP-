@@ -11,9 +11,12 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,8 +39,10 @@ class AttendanceFragment : Fragment() {
     private lateinit var layoutEmpty: LinearLayout
     private lateinit var fabAddSubject: FloatingActionButton
     private lateinit var btnScanAI: TextView
+    private lateinit var cardAttendanceGuide: LinearLayout
 
     private lateinit var adapter: AttendanceAdapter
+    private var cachedSubjectSummaries: List<SubjectAttendanceSummary> = emptyList()
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -76,6 +81,11 @@ class AttendanceFragment : Fragment() {
         layoutEmpty = root.findViewById(R.id.layoutEmptyAttendance)
         fabAddSubject = root.findViewById(R.id.fabAddSubject)
         btnScanAI = root.findViewById(R.id.btnScanAttendanceAI)
+        cardAttendanceGuide = root.findViewById(R.id.cardAttendanceGuide)
+
+        cardAttendanceGuide.setOnClickListener {
+            showAttendanceGuideDialog()
+        }
 
         btnScanAI.setOnClickListener {
             val options = arrayOf("📸 Take Photo of Attendance Sheet", "🖼️ Choose from Gallery")
@@ -154,6 +164,7 @@ class AttendanceFragment : Fragment() {
                 pbOverall.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.status_safe))
             }
 
+            cachedSubjectSummaries = summary.subjectSummaries
             adapter.updateList(summary.subjectSummaries)
             layoutEmpty.visibility = if (summary.subjectSummaries.isEmpty()) View.VISIBLE else View.GONE
         }
@@ -229,5 +240,99 @@ class AttendanceFragment : Fragment() {
                 Toast.makeText(context, "Could not detect attendance records in the photo. Please check image clarity.", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showAttendanceGuideDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_attendance_guide, null)
+        val spSubject = view.findViewById<Spinner>(R.id.spGuideSubject)
+        val tvCurrentPct = view.findViewById<TextView>(R.id.tvGuideCurrentPct)
+        val tvCount = view.findViewById<TextView>(R.id.tvGuideAttendanceCount)
+        val tvBufferStatus = view.findViewById<TextView>(R.id.tvGuideBufferStatus)
+
+        val btnMinus = view.findViewById<TextView>(R.id.btnSimulateMinusMiss)
+        val btnPlus = view.findViewById<TextView>(R.id.btnSimulatePlusMiss)
+        val tvMissCount = view.findViewById<TextView>(R.id.tvSimulateMissCount)
+        val tvResultPct = view.findViewById<TextView>(R.id.tvSimulatedResultPct)
+        val tvAdvice = view.findViewById<TextView>(R.id.tvSimulatedAdvice)
+
+        val list = cachedSubjectSummaries
+        if (list.isEmpty()) {
+            Toast.makeText(context, "Please add or scan courses to use the simulator!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val subjectNames = list.map { "${it.subjectName} (${it.percentage}%)" }
+        spSubject.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, subjectNames)
+
+        var selectedIndex = 0
+        var missSimulated = 1
+
+        fun updateSimulation() {
+            if (selectedIndex !in list.indices) return
+            val item = list[selectedIndex]
+            tvCurrentPct.text = "${item.percentage}%"
+            tvCount.text = "${item.presentCount} attended / ${item.totalClasses} total"
+
+            val canMiss = if (item.percentage >= item.targetPercentage && item.totalClasses > 0) {
+                kotlin.math.floor((100.0 * item.presentCount - item.targetPercentage * item.totalClasses) / item.targetPercentage).toInt().coerceAtLeast(0)
+            } else 0
+
+            if (canMiss > 0) {
+                tvBufferStatus.text = "✅ Safe buffer: Can miss $canMiss class(es)"
+                tvBufferStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_safe))
+            } else {
+                val needed = if (item.classesNeeded > 0) item.classesNeeded else 1
+                tvBufferStatus.text = "⚠️ Shortage: Must attend $needed consecutive class(es)"
+                tvBufferStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_warning))
+            }
+
+            tvMissCount.text = "$missSimulated"
+            val simulatedTotal = item.totalClasses + missSimulated
+            val simulatedAttended = item.presentCount
+            val simulatedPct = if (simulatedTotal > 0) {
+                Math.round((simulatedAttended.toDouble() / simulatedTotal) * 1000.0) / 10.0
+            } else 0.0
+
+            tvResultPct.text = "Projected Attendance: $simulatedPct%"
+            if (simulatedPct >= 75.0) {
+                tvResultPct.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_safe))
+                tvAdvice.text = "✅ SAFE! If you miss $missSimulated class(es), you stay above the mandatory 75% threshold."
+                tvAdvice.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_safe))
+            } else {
+                tvResultPct.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_warning))
+                val shortfall = Math.round((75.0 - simulatedPct) * 10.0) / 10.0
+                tvAdvice.text = "⚠️ SHORTAGE DANGER! Dropping below 75% by $shortfall%. Condonation or extra attendance will be needed."
+                tvAdvice.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_warning))
+            }
+        }
+
+        spSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedIndex = position
+                updateSimulation()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        btnMinus.setOnClickListener {
+            if (missSimulated > 1) {
+                missSimulated--
+                updateSimulation()
+            }
+        }
+
+        btnPlus.setOnClickListener {
+            if (missSimulated < 20) {
+                missSimulated++
+                updateSimulation()
+            }
+        }
+
+        updateSimulation()
+
+        AlertDialog.Builder(requireContext())
+            .setView(view)
+            .setPositiveButton("Close", null)
+            .show()
     }
 }

@@ -11,24 +11,53 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Screen Heading (Lavender Cloud) -->
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Screen Heading + AI Scan Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Academic Marks"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="12dp"
-            android:text="Performance analytics, test scores, and grade tracking"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Academic Marks"
+                    android:textColor="@color/text_primary"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Performance analytics, test scores, and grade tracking"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnScanMarksAI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="9dp"
+                android:text="📷 Scan (AI)"
+                android:textColor="@color/lavender_primary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <!-- Analytics Header Cards (Neumorphic 3-Column Grid) -->
         <LinearLayout
@@ -122,6 +151,62 @@
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
+        </LinearLayout>
+
+        <!-- Student Growth & CGPA Pathway Card -->
+        <LinearLayout
+            android:id="@+id/cardGrowthPathway"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_neumorphic_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📈"
+                android:textSize="26sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Student Growth &amp; CGPA Pathway"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Target SGPA calculator, weak subjects &amp; roadmap"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_neutral"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:text="Pathway ⚡"
+                android:textColor="@color/electric_violet"
+                android:textSize="11sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView

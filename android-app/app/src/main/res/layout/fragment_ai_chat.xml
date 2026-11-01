@@ -243,6 +243,7 @@
                 android:id="@+id/promptStrategy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_pill_yellow"
                 android:clickable="true"
                 android:focusable="true"
@@ -250,6 +251,69 @@
                 android:paddingVertical="8dp"
                 android:text="⚡ Daily Strategy"
                 android:textColor="#1F1A38"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/promptQuiz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="🎯 Quiz Me"
+                android:textColor="@color/electric_violet"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/promptMnemonic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="🧠 Memory Mnemonic"
+                android:textColor="@color/cobalt_blue"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/promptSprint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="⏱️ 20-Min Sprint"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/promptGrowthCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="📈 Growth Diagnostic"
+                android:textColor="@color/brand_primary"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold" />
