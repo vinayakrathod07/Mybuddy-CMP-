@@ -33,10 +33,12 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var btnVoice: FrameLayout
     private lateinit var btnSend: FrameLayout
     private lateinit var btnAttachPhoto: FrameLayout
+    private lateinit var btnToggleTalkBack: TextView
 
     private lateinit var adapter: ChatAdapter
     private var tts: TextToSpeech? = null
     private val messagesList = mutableListOf<ChatMessage>()
+    private var isTalkBackEnabled = true
 
     private var currentLanguage = "English"
 
@@ -84,6 +86,21 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
         btnVoice = root.findViewById(R.id.btnVoiceInput)
         btnSend = root.findViewById(R.id.btnSendMessage)
         btnAttachPhoto = root.findViewById(R.id.btnAttachPhoto)
+        btnToggleTalkBack = root.findViewById(R.id.btnToggleTalkBack)
+
+        btnToggleTalkBack.setOnClickListener {
+            isTalkBackEnabled = !isTalkBackEnabled
+            if (isTalkBackEnabled) {
+                btnToggleTalkBack.text = "🔊 Voice ON"
+                btnToggleTalkBack.setBackgroundResource(R.drawable.bg_pill_lime)
+                Toast.makeText(context, "Voice Talk-Back enabled", Toast.LENGTH_SHORT).show()
+            } else {
+                btnToggleTalkBack.text = "🔇 Voice OFF"
+                btnToggleTalkBack.setBackgroundResource(R.drawable.bg_neumorphic_chip_idle)
+                tts?.stop()
+                Toast.makeText(context, "Voice Talk-Back muted", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         chipLangEnglish = root.findViewById(R.id.chipLangEnglish)
         chipLangHindi = root.findViewById(R.id.chipLangHindi)
@@ -108,6 +125,15 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
         rvMessages.adapter = adapter
 
         // Setup Quick Prompts
+        root.findViewById<TextView>(R.id.promptDailyCheckIn)?.setOnClickListener {
+            sendMessage("Perform my daily check-in")
+        }
+
+        root.findViewById<TextView>(R.id.promptRoadmap)?.setOnClickListener {
+            sendMessage("Generate my personalized career and semester roadmap")
+            RoadmapDialogHelper.showRoadmapDialog(requireContext(), viewLifecycleOwner.lifecycleScope)
+        }
+
         root.findViewById<TextView>(R.id.promptTodayClasses)?.setOnClickListener {
             sendMessage("What classes do I have scheduled for today?")
         }
@@ -163,17 +189,43 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
             showPhotoSourceDialog()
         }
 
-        // Welcome Message
+        // Welcome Message with Dynamic Timetable-Aware Daily Check-In
         if (messagesList.isEmpty()) {
-            messagesList.add(
-                ChatMessage(
+            viewLifecycleOwner.lifecycleScope.launch {
+                val timetable = FirebaseRepository.getTimetable()
+                val profile = FirebaseRepository.getProfile()
+                val tasks = FirebaseRepository.getTasks()
+                val pendingTasks = tasks.filter { it.status != "completed" }
+                val studentName = profile.fullName.ifEmpty { "Dost" }
+
+                val todayDay = java.text.SimpleDateFormat("EEEE", java.util.Locale.ENGLISH).format(java.util.Date())
+                val todaysClasses = timetable.filter { it.dayOfWeek.equals(todayDay, ignoreCase = true) }
+
+                val welcomeText = if (todaysClasses.isNotEmpty()) {
+                    val subjects = todaysClasses.map { it.subjectName }.distinct().joinToString(", ")
+                    "Hey $studentName! 👋 Kaise ho dost?\n\nToday ($todayDay) you have classes scheduled for $subjects. How was your day? Did anything special happen in class or college?\n\nAlso, were any new assignments or tasks given out today? Tell me right here and I'll immediately add them to your planner!"
+                } else {
+                    val upcoming = if (pendingTasks.isNotEmpty()) {
+                        "You have ${pendingTasks.size} pending task(s) on your planner."
+                    } else {
+                        "Your planner is all caught up!"
+                    }
+                    "Hey $studentName! 👋 Today ($todayDay) is your chill rest day — no lectures scheduled! 🌴🎉\n\nRelax, take it easy, enjoy your day! $upcoming\n\nWhenever you're ready, tap 'Daily Check-In', 'Career Roadmap', or ask me to quiz you on any topic!"
+                }
+
+                val welcomeMsg = ChatMessage(
                     id = "msg_welcome",
                     role = "assistant",
-                    content = "Hey Dost! 👋 I am your MyBuddy AI tutor. I speak 8 languages and have live access to your timetable, assignments, and attendance.\n\nAsk me anything, speak via voice, or tap the camera icon to analyze a photo of your timetable or syllabus!",
-                    sources = "Source: MyBuddy AI Core"
+                    content = welcomeText,
+                    sources = "Source: Live Timetable Check-In"
                 )
-            )
-            adapter.notifyDataSetChanged()
+                messagesList.add(welcomeMsg)
+                adapter.notifyDataSetChanged()
+
+                if (isTalkBackEnabled) {
+                    speakTextFriendly(welcomeText)
+                }
+            }
         }
 
         return root
@@ -383,6 +435,10 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
             messagesList.add(reply)
             adapter.notifyItemInserted(messagesList.size - 1)
             rvMessages.smoothScrollToPosition(messagesList.size - 1)
+
+            if (isTalkBackEnabled) {
+                speakTextFriendly(reply.content)
+            }
         }
     }
 

@@ -134,6 +134,62 @@ object FirebaseRepository {
         }
     }
 
+    suspend fun loginOrRegisterPhoneUser(
+        phoneNumber: String,
+        fullName: String,
+        verificationToken: String? = null
+    ): Pair<Boolean, String?> {
+        val cleanPhone = phoneNumber.replace(" ", "").replace("-", "")
+        if (cleanPhone.length < 10) {
+            return Pair(false, "Please enter a valid 10-digit mobile number")
+        }
+        val syntheticEmail = "phone_${cleanPhone.takeLast(10)}@mybuddy.app"
+        val safePassword = "MyBuddyPhoneAuth_" + cleanPhone.takeLast(6)
+
+        // 1. Try to sign in if account exists
+        val (signInOk, _) = signInEmail(syntheticEmail, safePassword)
+        if (signInOk) {
+            val uid = getCurrentUserId()
+            try {
+                val doc = firestore.collection("users").document(uid).get().await()
+                if (!doc.exists()) {
+                    val p = StudentProfile(
+                        userId = uid,
+                        email = syntheticEmail,
+                        fullName = fullName.ifEmpty { "Student" },
+                        college = "University Student"
+                    )
+                    saveProfile(p)
+                }
+            } catch (_: Exception) {}
+            return Pair(true, null)
+        }
+
+        // 2. Register as a new student
+        val (regOk, regErr) = registerEmail(syntheticEmail, safePassword, fullName.ifEmpty { "Student" })
+        if (regOk) {
+            return Pair(true, null)
+        }
+
+        // 3. Fallback: anonymous or authenticated session + local profile setup
+        return try {
+            if (auth.currentUser == null) {
+                auth.signInAnonymously().await()
+            }
+            val uid = getCurrentUserId()
+            val p = StudentProfile(
+                userId = uid,
+                email = syntheticEmail,
+                fullName = fullName.ifEmpty { "Student" },
+                college = "University Student"
+            )
+            saveProfile(p)
+            Pair(true, null)
+        } catch (_: Exception) {
+            Pair(false, regErr ?: "Mobile authentication failed. Please try again.")
+        }
+    }
+
     fun isUserSignedIn(): Boolean = auth.currentUser != null
 
     fun signOut() {

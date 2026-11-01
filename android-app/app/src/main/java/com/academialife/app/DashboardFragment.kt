@@ -184,6 +184,10 @@ class DashboardFragment : Fragment() {
             mainAct?.navigateTo(AIChatFragment(), "Dost — AI Tutor", "Multilingual Academic Companion")
         }
 
+        root.findViewById<View>(R.id.btnViewCareerRoadmap)?.setOnClickListener {
+            RoadmapDialogHelper.showRoadmapDialog(requireContext(), viewLifecycleOwner.lifecycleScope)
+        }
+
         // Water drink action
         btnAddWaterGlass.setOnClickListener {
             val newGlasses = FirebaseRepository.incrementWater()

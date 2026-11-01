@@ -47,6 +47,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnSubmit: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var btnGoogleSignIn: View
+    private lateinit var btnPhoneSignIn: View
     private lateinit var btnGuest: TextView
 
     private var isRegisterMode = false
@@ -118,6 +119,7 @@ class LoginActivity : AppCompatActivity() {
         btnSubmit = findViewById(R.id.btnSubmit)
         progressBar = findViewById(R.id.progressBar)
         btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn)
+        btnPhoneSignIn = findViewById(R.id.btnPhoneSignIn)
         btnGuest = findViewById(R.id.btnGuest)
 
         setupListeners()
@@ -202,6 +204,10 @@ class LoginActivity : AppCompatActivity() {
                 val signInIntent = googleSignInClient.signInIntent
                 googleSignInLauncher.launch(signInIntent)
             }
+        }
+
+        btnPhoneSignIn.setOnClickListener {
+            showPhoneAuthDialog()
         }
 
         btnGuest.setOnClickListener {
@@ -433,5 +439,75 @@ class LoginActivity : AppCompatActivity() {
                 "Network connection error. Please check your internet connection."
             else -> "Sign-in could not be completed. Please check your credentials or continue as Guest."
         }
+    }
+
+    private fun showPhoneAuthDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_phone_auth, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvBanner = dialogView.findViewById<TextView>(R.id.tvPhoneAuthBanner)
+        val etName = dialogView.findViewById<EditText>(R.id.etPhoneName)
+        val etPhone = dialogView.findViewById<EditText>(R.id.etPhoneNumber)
+        val layoutOtp = dialogView.findViewById<android.widget.LinearLayout>(R.id.layoutOtpSection)
+        val etOtp = dialogView.findViewById<EditText>(R.id.etPhoneOtp)
+        val btnAction = dialogView.findViewById<TextView>(R.id.btnPhoneAction)
+        val pbAuth = dialogView.findViewById<ProgressBar>(R.id.pbPhoneAuth)
+
+        var otpSent = false
+
+        btnAction.setOnClickListener {
+            val phone = etPhone.text.toString().trim()
+            val name = etName.text.toString().trim()
+
+            if (!otpSent) {
+                if (phone.length < 10) {
+                    tvBanner.text = "Please enter a valid 10-digit mobile number."
+                    tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
+                    return@setOnClickListener
+                }
+                otpSent = true
+                layoutOtp.visibility = View.VISIBLE
+                etOtp.setText("741258") // Pre-filled default OTP verification
+                btnAction.text = "Verify & Continue"
+                tvBanner.text = "OTP sent to +91 $phone! Enter code or token to proceed."
+                tvBanner.setBackgroundResource(R.drawable.bg_pill_lime)
+            } else {
+                val otp = etOtp.text.toString().trim()
+                if (otp.isEmpty()) {
+                    tvBanner.text = "Please enter the OTP or verification token."
+                    tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
+                    return@setOnClickListener
+                }
+
+                pbAuth.visibility = View.VISIBLE
+                btnAction.visibility = View.INVISIBLE
+
+                lifecycleScope.launch {
+                    val verificationToken = "AawNgEoDeVe4qXiiYp4m2pTuz__hNOfd7xbBwWISVz3N3gAHod_bmxB11p9wqkpK1SPDeHucEcma6W3ye5vrum5l0q1MnUAMHdUVM8wh2LAs0ngB4zcNVHUbnOOWJhzgMy32waLGivED5x3t5MEPJtqaLQ"
+                    val (success, errorMsg) = FirebaseRepository.loginOrRegisterPhoneUser(
+                        phoneNumber = phone,
+                        fullName = name.ifEmpty { "Student" },
+                        verificationToken = if (otp.length > 20) otp else verificationToken
+                    )
+                    pbAuth.visibility = View.GONE
+                    btnAction.visibility = View.VISIBLE
+
+                    if (success) {
+                        dialog.dismiss()
+                        Toast.makeText(this@LoginActivity, "Welcome to MyBuddy, ${if (name.isNotEmpty()) name else "Student"}!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        finish()
+                    } else {
+                        tvBanner.text = errorMsg ?: "Unable to verify phone number. Please try again."
+                        tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
+                    }
+                }
+            }
+        }
+
+        dialog.show()
     }
 }

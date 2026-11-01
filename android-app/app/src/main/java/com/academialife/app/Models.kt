@@ -251,3 +251,22 @@ data class AIProactiveInsight(
     val actionTarget: String = "study", // timetable, tasks, attendance, study, wellness
     val timestamp: Long = System.currentTimeMillis()
 )
+
+data class RoadmapMilestone(
+    val monthNumber: Int,
+    val title: String,
+    val focus: String,
+    val keyDeliverables: List<String>
+)
+
+data class StudentRoadmap(
+    val studentName: String,
+    val courseAndSem: String,
+    val targetGoal: String,
+    val currentPhaseTitle: String,
+    val milestones: List<RoadmapMilestone>,
+    val whatToDo: List<String>,
+    val whatToAvoid: List<String>,
+    val immediateNextSteps: List<String>,
+    val motivationalQuote: String
+)

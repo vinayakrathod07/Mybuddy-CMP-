@@ -372,6 +372,35 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Mobile Phone Sign In / Register Button -->
+        <LinearLayout
+            android:id="@+id/btnPhoneSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_neumorphic_btn"
+            android:clickable="true"
+            android:elevation="3dp"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_phone"
+                android:contentDescription="Phone Logo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Continue with Mobile Phone"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
         <!-- Guest Access Button -->
         <TextView
             android:id="@+id/btnGuest"
