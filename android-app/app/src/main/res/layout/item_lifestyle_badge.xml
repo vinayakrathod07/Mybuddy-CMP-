@@ -9,14 +9,29 @@
     android:orientation="horizontal"
     android:padding="14dp">
 
-    <TextView
-        android:id="@+id/tvBadgeIcon"
+    <!-- Official Badge / Cap / Spark Graphic Container -->
+    <FrameLayout
         android:layout_width="44dp"
         android:layout_height="44dp"
-        android:background="@drawable/bg_neumorphic_circle_idle"
-        android:gravity="center"
-        android:text="🎯"
-        android:textSize="22sp" />
+        android:background="@drawable/bg_neumorphic_circle_idle">
+
+        <ImageView
+            android:id="@+id/ivBadgeGraphic"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mybuddy_badge_sticker"
+            android:contentDescription="Badge Graphic" />
+
+        <TextView
+            android:id="@+id/tvBadgeIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -76,4 +91,3 @@
     </LinearLayout>
 
 </LinearLayout>
-

@@ -168,6 +168,14 @@ class DashboardFragment : Fragment() {
             mainAct?.navigateTo(DocumentVaultFragment(), "Course Document Vault", "Lecture Notes & Cheatsheets")
         }
 
+        root.findViewById<View>(R.id.btnHeaderSearch)?.setOnClickListener {
+            mainAct?.navigateTo(SearchFragment(), "Search Hub", "Instant Academic Lookup")
+        }
+
+        root.findViewById<View>(R.id.btnHeaderNotif)?.setOnClickListener {
+            mainAct?.navigateTo(NotificationsFragment(), "Alerts & Deadlines", "Smart Notifications")
+        }
+
         root.findViewById<View>(R.id.btnQuickSearch)?.setOnClickListener {
             mainAct?.navigateTo(SearchFragment(), "Search Hub", "Instant Academic Lookup")
         }

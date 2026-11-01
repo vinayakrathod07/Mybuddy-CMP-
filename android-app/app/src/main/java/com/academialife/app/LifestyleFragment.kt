@@ -353,11 +353,20 @@ class LifestyleFragment : Fragment() {
 
         badges.forEach { badge ->
             val itemView = layoutInflater.inflate(R.layout.item_lifestyle_badge, layoutBadgesList, false)
+            val ivGraphic = itemView.findViewById<android.widget.ImageView>(R.id.ivBadgeGraphic)
             val tvIcon = itemView.findViewById<TextView>(R.id.tvBadgeIcon)
             val tvTitle = itemView.findViewById<TextView>(R.id.tvBadgeTitle)
             val tvDesc = itemView.findViewById<TextView>(R.id.tvBadgeDesc)
             val tvStatus = itemView.findViewById<TextView>(R.id.tvBadgeStatus)
             val tvXP = itemView.findViewById<TextView>(R.id.tvBadgeXP)
+
+            // Select MyBuddy brand achievement graphics
+            val graphicRes = when {
+                badge.id.contains("academic", true) || badge.id.contains("attendance", true) || badge.title.contains("Exam", true) -> R.drawable.mybuddy_grad_cap
+                badge.id.contains("streak", true) || badge.id.contains("focus", true) || badge.title.contains("Master", true) -> R.drawable.mybuddy_sparkle
+                else -> R.drawable.mybuddy_badge_sticker
+            }
+            ivGraphic?.setImageResource(graphicRes)
 
             tvIcon.text = badge.iconEmoji
             tvTitle.text = badge.title

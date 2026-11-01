@@ -42,13 +42,24 @@
     <color name="priority_medium">#8B6BF7</color>
     <color name="priority_low">#26D695</color>
 
+    <!-- ======================================================== -->
+    <!-- OFFICIAL MYBUDDY BRAND PALETTE                           -->
+    <!-- ======================================================== -->
+    <color name="brand_deep_navy">#15103D</color>
+    <color name="brand_violet">#8A4BFF</color>
+    <color name="brand_purple">#B35EFF</color>
+    <color name="brand_coral">#FF805E</color>
+    <color name="brand_yellow">#FFD447</color>
+    <color name="brand_pink">#F476D5</color>
+    <color name="brand_mint">#4EE5BC</color>
+    <color name="brand_white">#FFFFFF</color>
+
     <!-- Brand Aliases for Compatibility -->
-    <color name="brand_primary">#8B6BF7</color>
-    <color name="brand_primary_variant">#7952F2</color>
-    <color name="brand_primary_glow">#408B6BF7</color>
-    <color name="brand_secondary">#FF7E73</color>
-    <color name="brand_secondary_variant">#FF6B5E</color>
-    <color name="brand_purple">#8B6BF7</color>
+    <color name="brand_primary">#8A4BFF</color>
+    <color name="brand_primary_variant">#7027F5</color>
+    <color name="brand_primary_glow">#408A4BFF</color>
+    <color name="brand_secondary">#FF805E</color>
+    <color name="brand_secondary_variant">#FF704B</color>
 
     <!-- Compatibility Aliases for Lavender & Slate References -->
     <color name="lavender_bg">#171421</color>

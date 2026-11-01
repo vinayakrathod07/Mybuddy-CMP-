@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light"
+    android:background="@drawable/bg_splash_gradient"
     android:clipChildren="false">
 
-    <!-- Ambient Neumorphic Glow Rings (Background Particles) -->
+    <!-- Ambient Subtle Glow Rings (Center Depth Particles) -->
     <View
         android:id="@+id/viewGlowRingOuter"
         android:layout_width="320dp"
         android:layout_height="320dp"
         android:layout_centerInParent="true"
         android:background="@drawable/bg_neumorphic_circle_btn"
-        android:alpha="0.4"
+        android:alpha="0.15"
         android:scaleX="0.5"
         android:scaleY="0.5" />
 
@@ -23,7 +23,7 @@
         android:layout_height="220dp"
         android:layout_centerInParent="true"
         android:background="@drawable/bg_neumorphic_card"
-        android:alpha="0.6"
+        android:alpha="0.25"
         android:scaleX="0.6"
         android:scaleY="0.6" />
 
@@ -36,14 +36,14 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <!-- Logo Frame with Neumorphic Elevation -->
+        <!-- Logo Frame with Crisp Elevated White Card -->
         <FrameLayout
             android:id="@+id/frameLogoCard"
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:background="@drawable/bg_neumorphic_card"
-            android:elevation="12dp"
-            android:padding="20dp">
+            android:background="@drawable/bg_card_white_rounded"
+            android:elevation="14dp"
+            android:padding="22dp">
 
             <ImageView
                 android:id="@+id/ivSplashLogo"
@@ -51,20 +51,20 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_mybuddy_symbol"
-                android:contentDescription="MyBuddy Logo" />
+                android:src="@drawable/mybuddy_symbol_compact"
+                android:contentDescription="MyBuddy Symbol" />
         </FrameLayout>
 
-        <!-- Brand Name Text -->
+        <!-- Brand Wordmark Text -->
         <TextView
             android:id="@+id/tvSplashBrand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="22dp"
             android:fontFamily="sans-serif-medium"
             android:text="MyBuddy"
-            android:textColor="@color/text_primary"
-            android:textSize="32sp"
+            android:textColor="#FFFFFF"
+            android:textSize="34sp"
             android:textStyle="bold"
             android:alpha="0" />
 
@@ -73,11 +73,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Your AI Student Life Companion"
-            android:textColor="@color/electric_violet"
+            android:text="Own Your Day • AI Student Life Companion"
+            android:textColor="#E4DBFF"
             android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
-            android:textStyle="bold"
             android:alpha="0" />
 
         <!-- Speech Greeting Pill ("Kya Haal Hai Dost!") -->
@@ -96,7 +95,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🎙️ क्या हाल है दोस्त!"
+                android:text="✨ क्या हाल है दोस्त!"
                 android:textColor="#1F1A38"
                 android:textSize="13sp"
                 android:fontFamily="sans-serif-medium"
@@ -104,7 +103,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Bottom Attribution -->
+    <!-- Bottom Attribution (Strictly Preserving Developer Credit) -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -118,11 +117,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Developed and Managed by Vinay Rathod"
-            android:textColor="@color/electric_violet"
+            android:textColor="#D5C9FF"
             android:textSize="12sp"
             android:fontFamily="sans-serif-medium"
             android:textStyle="bold" />
     </LinearLayout>
 
 </RelativeLayout>
-

@@ -98,6 +98,7 @@ class MainActivity : AppCompatActivity() {
     fun navigateTo(fragment: Fragment, title: String, subtitle: String = "") {
         topAppBar.title = title
         topAppBar.subtitle = subtitle
+        topAppBar.visibility = if (fragment is DashboardFragment) android.view.View.GONE else android.view.View.VISIBLE
 
         // Synchronize bottom nav selection state
         when (fragment) {

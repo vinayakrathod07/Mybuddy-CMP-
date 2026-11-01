@@ -146,10 +146,12 @@
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_documents"
-                app:tint="@color/text_muted" />
+                android:layout_width="92dp"
+                android:layout_height="92dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/mybuddy_mascot"
+                android:contentDescription="Document Vault Empty" />
 
             <TextView
                 android:layout_width="wrap_content"

@@ -16,14 +16,14 @@
         android:paddingBottom="36dp"
         android:gravity="center_horizontal">
 
-        <!-- Official MyBuddy App Logo -->
+        <!-- Official MyBuddy Horizontal Brand Logo (Auto-adapts to Light / Dark themes) -->
         <ImageView
-            android:layout_width="190dp"
-            android:layout_height="72dp"
+            android:layout_width="220dp"
+            android:layout_height="64dp"
             android:layout_marginTop="20dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/img_mybuddy_logo"
+            android:src="@drawable/mybuddy_logo_horizontal"
             android:contentDescription="MyBuddy Logo" />
 
         <TextView
