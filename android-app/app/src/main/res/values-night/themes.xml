@@ -1,0 +1,28 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme: Lavender Cloud Night (Dark Mode). -->
+    <style name="Theme.AcademiaLife" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary lavender brand color -->
+        <item name="colorPrimary">@color/lavender_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/lavender_surface</item>
+        <item name="colorOnPrimaryContainer">@color/lavender_deep</item>
+        
+        <!-- Deep lavender secondary -->
+        <item name="colorSecondary">@color/lavender_deep</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- Dark Canvas & Surfaces -->
+        <item name="android:windowBackground">@color/lavender_bg</item>
+        <item name="colorSurface">@color/lavender_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- Status bar and Navigation bar -->
+        <item name="android:statusBarColor">@color/lavender_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/lavender_bg</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+
+        <!-- Neumorphic Dialog styling -->
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.AcademiaLife.MaterialAlertDialog</item>
+    </style>
+</resources>

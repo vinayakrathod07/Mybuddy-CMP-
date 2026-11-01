@@ -14,11 +14,11 @@
         android:layout_height="64dp"
         android:background="@drawable/bg_neumorphic_top_bar"
         android:elevation="4dp"
-        app:title="AcademiaLife"
+        app:title="MyBuddy"
         app:titleCentered="false"
         app:titleTextAppearance="@style/TextAppearance.Material3.TitleMedium"
         app:titleTextColor="@color/text_primary"
-        app:subtitle="Student Academic Assistant"
+        app:subtitle="Your Academic Companion"
         app:subtitleTextColor="@color/text_secondary"
         app:menu="@menu/top_app_bar_menu"
         app:layout_constraintTop_toTopOf="parent" />

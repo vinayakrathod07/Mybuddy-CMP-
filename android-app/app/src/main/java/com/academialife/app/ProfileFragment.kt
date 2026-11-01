@@ -30,6 +30,10 @@ class ProfileFragment : Fragment() {
     private lateinit var btnAuthDialog: TextView
     private lateinit var btnSignOut: TextView
 
+    private lateinit var btnThemeSystem: TextView
+    private lateinit var btnThemeLight: TextView
+    private lateinit var btnThemeDark: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -50,6 +54,12 @@ class ProfileFragment : Fragment() {
         btnSave = root.findViewById(R.id.btnSaveProfile)
         btnAuthDialog = root.findViewById(R.id.btnAuthDialog)
         btnSignOut = root.findViewById(R.id.btnSignOut)
+
+        btnThemeSystem = root.findViewById(R.id.btnThemeSystem)
+        btnThemeLight = root.findViewById(R.id.btnThemeLight)
+        btnThemeDark = root.findViewById(R.id.btnThemeDark)
+
+        setupThemeSelector()
 
         btnSave.setOnClickListener {
             saveProfileData()
@@ -74,6 +84,40 @@ class ProfileFragment : Fragment() {
         return root
     }
 
+    private fun setupThemeSelector() {
+        val currentTheme = ThemeManager.getTheme(requireContext())
+        updateThemeUI(currentTheme)
+
+        btnThemeSystem.setOnClickListener {
+            ThemeManager.setTheme(requireContext(), ThemeManager.MODE_SYSTEM)
+            updateThemeUI(ThemeManager.MODE_SYSTEM)
+        }
+        btnThemeLight.setOnClickListener {
+            ThemeManager.setTheme(requireContext(), ThemeManager.MODE_LIGHT)
+            updateThemeUI(ThemeManager.MODE_LIGHT)
+        }
+        btnThemeDark.setOnClickListener {
+            ThemeManager.setTheme(requireContext(), ThemeManager.MODE_DARK)
+            updateThemeUI(ThemeManager.MODE_DARK)
+        }
+    }
+
+    private fun updateThemeUI(theme: String) {
+        val activeBg = R.drawable.bg_neumorphic_btn_primary_idle
+        val transparent = android.R.color.transparent
+        val white = resources.getColor(R.color.white, null)
+        val muted = resources.getColor(R.color.text_secondary, null)
+
+        btnThemeSystem.setBackgroundResource(if (theme == ThemeManager.MODE_SYSTEM) activeBg else transparent)
+        btnThemeSystem.setTextColor(if (theme == ThemeManager.MODE_SYSTEM) white else muted)
+
+        btnThemeLight.setBackgroundResource(if (theme == ThemeManager.MODE_LIGHT) activeBg else transparent)
+        btnThemeLight.setTextColor(if (theme == ThemeManager.MODE_LIGHT) white else muted)
+
+        btnThemeDark.setBackgroundResource(if (theme == ThemeManager.MODE_DARK) activeBg else transparent)
+        btnThemeDark.setTextColor(if (theme == ThemeManager.MODE_DARK) white else muted)
+    }
+
     private fun loadProfileData() {
         viewLifecycleOwner.lifecycleScope.launch {
             val p = FirebaseRepository.getProfile()
@@ -81,9 +125,9 @@ class ProfileFragment : Fragment() {
             tvProfileEmail.text = p.email
 
             if (FirebaseRepository.isUserLoggedIn()) {
-                tvAuthBadge.text = "Firebase Authenticated • Sync Enabled"
+                tvAuthBadge.text = "Verified Student Account • Cloud Sync"
             } else {
-                tvAuthBadge.text = "Local Guest Student Mode"
+                tvAuthBadge.text = "Guest Student Mode"
             }
 
             etFullName.setText(p.fullName)
@@ -222,7 +266,7 @@ class ProfileFragment : Fragment() {
                 if (isRegisterMode) {
                     val (ok, errorMsg) = FirebaseRepository.registerEmail(email, pass, name)
                     if (ok) {
-                        Toast.makeText(context, "Welcome to AcademiaLife, $name!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Welcome to MyBuddy, $name!", Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
                         loadProfileData()
                     } else {

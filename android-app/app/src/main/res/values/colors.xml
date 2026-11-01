@@ -1,77 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ======================================================== -->
-    <!-- AcademiaLife: Modern Lavender Cloud Palette (Optimised)   -->
+    <!-- MYBUDDY: DOPAMINE RUSH DESIGN SYSTEM (Light Palette)      -->
     <!-- ======================================================== -->
 
-    <!-- Primary Canvas & Surfaces (Airy, Crystal Clear) -->
-    <color name="lavender_bg">#F6F5FD</color>             <!-- Clean airy lavender background -->
-    <color name="lavender_surface">#EEEBFA</color>        <!-- Secondary lavender surface -->
-    <color name="lavender_card">#FFFFFF</color>           <!-- Crisp modern card surface -->
-    <color name="lavender_primary">#6E56E2</color>        <!-- Vibrant modern electric lavender/iris -->
-    <color name="lavender_deep">#5742C6</color>           <!-- Deep premium iris -->
-    <color name="lavender_soft">#E6E1FC</color>           <!-- Soft pill surface -->
-    <color name="lavender_light_shadow">#FFFFFF</color>   <!-- Ambient highlight -->
-    <color name="lavender_dark_shadow">#D8D3ED</color>    <!-- Soft ambient shadow -->
-    <color name="lavender_divider">#EDE9F8</color>        <!-- Ultra-fine divider -->
+    <!-- Core Dopamine Rush Palette -->
+    <color name="electric_violet">#7952F2</color>       <!-- Hero Brand Accent -->
+    <color name="electric_violet_dark">#6234EB</color>  <!-- Deep Violet Pressed -->
+    <color name="hot_coral">#FF6B5E</color>             <!-- Urgent, Deadlines, Sparks -->
+    <color name="sunshine_yellow">#FFD84D</color>       <!-- Streaks, Focus, Stars -->
+    <color name="acid_lime">#D6F56A</color>             <!-- Attendance Safe, Success, XP -->
+    <color name="cobalt_blue">#4169F5</color>           <!-- Study Zone, Vault, Records -->
+    <color name="soft_pink">#FF9FCB</color>             <!-- Wellness, Mood, Badges -->
+    <color name="electric_cyan">#26E6E6</color>         <!-- Fresh Electric Cyan -->
 
-    <!-- Brand Aliases for theme parity -->
-    <color name="brand_primary">#6E56E2</color>
-    <color name="brand_primary_variant">#5742C6</color>
-    <color name="brand_primary_glow">#336E56E2</color>
-    <color name="brand_secondary">#5742C6</color>
-    <color name="brand_secondary_variant">#4533A8</color>
-    <color name="brand_purple">#6E56E2</color>
+    <!-- Primary Canvas & Surfaces (Warm Cream Dopamine Canvas) -->
+    <color name="bg_light">#FFF9F2</color>              <!-- Radiant warm background -->
+    <color name="surface_light">#FFFFFF</color>         <!-- Crisp elevated cards -->
+    <color name="surface_subtle">#F7F2EC</color>        <!-- Inset input / sunken container -->
+    <color name="surface_border">#EFE8E0</color>        <!-- Ultra-fine micro border -->
+    <color name="divider_color">#EFE8E0</color>
 
-    <!-- Modern Surfaces -->
-    <color name="neu_bg">#F6F5FD</color>
-    <color name="neu_surface">#FFFFFF</color>
-    <color name="neu_shadow_dark">#D8D3ED</color>
-    <color name="neu_shadow_light">#FFFFFF</color>
-    <color name="neu_sunken">#F9F8FE</color>
-    <color name="neu_sunken_border">#E4E0F5</color>
-    <color name="neu_border_subtle">#ECE7F8</color>
-    <color name="neu_card_stroke">#ECE7F8</color>
-
-    <!-- Typography (High Contrast, Deep Obsidian Violet) -->
-    <color name="text_primary">#2B254E</color>            <!-- Deep high-contrast text -->
-    <color name="text_secondary">#6E688B</color>          <!-- Balanced slate lavender -->
-    <color name="text_disabled">#ABA5C4</color>           <!-- Clean muted text -->
-    <color name="text_muted">#6E688B</color>
+    <!-- Typography (High Contrast Electric Obsidian) -->
+    <color name="text_primary">#1F1A38</color>          <!-- Expressive deep text -->
+    <color name="text_secondary">#6E6988</color>        <!-- Slate secondary text -->
+    <color name="text_disabled">#ABA5C4</color>
+    <color name="text_muted">#8E89A8</color>
     <color name="text_light">#FFFFFF</color>
 
-    <!-- Semantic Status Colors (Refined & Vibrant) -->
-    <color name="status_safe">#34A877</color>             <!-- Modern Emerald -->
-    <color name="status_safe_bg">#EBF7F1</color>
-    <color name="status_safe_glow">#2034A877</color>
-
-    <color name="status_warning">#E29938</color>          <!-- Warm Amber -->
-    <color name="status_warning_bg">#FDF6EB</color>
-    <color name="status_warning_glow">#20E29938</color>
-
-    <color name="status_critical">#E5536F</color>         <!-- Coral Rose -->
-    <color name="status_critical_bg">#FDF0F3</color>
-    <color name="status_critical_glow">#20E5536F</color>
+    <!-- Semantic Status Colors -->
+    <color name="status_safe">#05C482</color>           <!-- Vibrant Emerald / Lime -->
+    <color name="status_safe_bg">#E9FBF3</color>
+    <color name="status_warning">#FFB020</color>        <!-- Sunshine Amber -->
+    <color name="status_warning_bg">#FFF8E7</color>
+    <color name="status_critical">#FF4D6D</color>       <!-- Hot Coral / Ruby -->
+    <color name="status_critical_bg">#FFF0F3</color>
 
     <!-- Priority Aliases -->
-    <color name="priority_urgent">#E5536F</color>
-    <color name="priority_high">#E29938</color>
-    <color name="priority_medium">#6E56E2</color>
-    <color name="priority_low">#34A877</color>
+    <color name="priority_urgent">#FF4D6D</color>
+    <color name="priority_high">#FFB020</color>
+    <color name="priority_medium">#7952F2</color>
+    <color name="priority_low">#05C482</color>
 
-    <!-- Legacy / Slate Support mapped to Modern Lavender -->
-    <color name="slate_900">#2B254E</color>
-    <color name="slate_800">#2B254E</color>
-    <color name="slate_700">#4A4370</color>
-    <color name="slate_600">#6E688B</color>
-    <color name="slate_500">#6E688B</color>
+    <!-- Brand Aliases for Compatibility -->
+    <color name="brand_primary">#7952F2</color>
+    <color name="brand_primary_variant">#6234EB</color>
+    <color name="brand_primary_glow">#407952F2</color>
+    <color name="brand_secondary">#FF6B5E</color>
+    <color name="brand_secondary_variant">#E65548</color>
+    <color name="brand_purple">#7952F2</color>
+
+    <!-- Compatibility Aliases for Lavender & Slate References -->
+    <color name="lavender_bg">#FFF9F2</color>
+    <color name="lavender_surface">#F7F2EC</color>
+    <color name="lavender_card">#FFFFFF</color>
+    <color name="lavender_primary">#7952F2</color>
+    <color name="lavender_deep">#6234EB</color>
+    <color name="lavender_soft">#EAE4FC</color>
+    <color name="lavender_light_shadow">#FFFFFF</color>
+    <color name="lavender_dark_shadow">#E5DCD2</color>
+    <color name="lavender_divider">#EFE8E0</color>
+
+    <color name="neu_bg">#FFF9F2</color>
+    <color name="neu_surface">#FFFFFF</color>
+    <color name="neu_shadow_dark">#E5DCD2</color>
+    <color name="neu_shadow_light">#FFFFFF</color>
+    <color name="neu_sunken">#F7F2EC</color>
+    <color name="neu_sunken_border">#EFE8E0</color>
+    <color name="neu_border_subtle">#EFE8E0</color>
+    <color name="neu_card_stroke">#EFE8E0</color>
+
+    <color name="slate_900">#1F1A38</color>
+    <color name="slate_800">#2B244D</color>
+    <color name="slate_700">#4A426B</color>
+    <color name="slate_600">#6E6988</color>
+    <color name="slate_500">#6E6988</color>
     <color name="slate_400">#ABA5C4</color>
-    <color name="slate_300">#D8D3ED</color>
-    <color name="slate_200">#EDE9F8</color>
-    <color name="slate_100">#EEEBFA</color>
-    <color name="slate_50">#F6F5FD</color>
+    <color name="slate_300">#D9D3EB</color>
+    <color name="slate_200">#EFE8E0</color>
+    <color name="slate_100">#F7F2EC</color>
+    <color name="slate_50">#FFF9F2</color>
 
-    <!-- Basics -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>

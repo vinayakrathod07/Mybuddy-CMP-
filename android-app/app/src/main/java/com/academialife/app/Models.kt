@@ -181,3 +181,63 @@ data class SearchResultItem(
     val subtitle: String,
     val details: String = ""
 )
+
+// ==========================================
+// DOPAMINE RUSH LIFE MANAGEMENT MODELS
+// ==========================================
+
+data class GamificationProfile(
+    val userId: String = "",
+    val xpPoints: Int = 450,
+    val streakDays: Int = 4,
+    val level: Int = 2,
+    val levelTitle: String = "Prodigy",
+    val completedTasksCount: Int = 6,
+    val focusMinutesTotal: Int = 145,
+    val unlockedBadges: List<String> = listOf("First Task Done", "Focus Master", "3-Day Streak")
+)
+
+data class BadgeItem(
+    val id: String,
+    val title: String,
+    val description: String,
+    val iconEmoji: String,
+    val isUnlocked: Boolean,
+    val xpReward: Int
+)
+
+data class ExpenseItem(
+    val id: String = "",
+    val userId: String = "",
+    val title: String = "",
+    val amount: Double = 0.0,
+    val category: String = "Food", // Food, Travel, Books, Shopping, Other
+    val date: String = "",
+    val timestamp: Long = System.currentTimeMillis()
+)
+
+data class FinanceBudget(
+    val monthlyBudget: Double = 5000.0,
+    val spentThisMonth: Double = 1250.0
+)
+
+data class WellnessEntry(
+    val id: String = "",
+    val userId: String = "",
+    val date: String = "",
+    val mood: String = "Motivated", // Excited, Motivated, Calm, Tired, Stressed
+    val waterGlasses: Int = 5,      // Target 8
+    val sleepHours: Double = 7.5,
+    val journalNote: String = ""
+)
+
+data class StudentNote(
+    val id: String = "",
+    val userId: String = "",
+    val title: String = "",
+    val content: String = "",
+    val subjectTag: String = "General",
+    val isPinned: Boolean = false,
+    val colorHex: String = "#7952F2",
+    val updatedAt: String = ""
+)

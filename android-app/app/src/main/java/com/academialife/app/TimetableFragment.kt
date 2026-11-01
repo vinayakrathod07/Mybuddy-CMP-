@@ -1,7 +1,12 @@
 package com.academialife.app
 
 import android.app.AlertDialog
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +14,9 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,10 +31,34 @@ class TimetableFragment : Fragment() {
     private lateinit var rvTimetable: RecyclerView
     private lateinit var layoutEmpty: LinearLayout
     private lateinit var fabAdd: FloatingActionButton
+    private lateinit var btnScanAI: TextView
     private lateinit var adapter: TimetableAdapter
 
     private var allEntries: List<TimetableEntry> = emptyList()
     private var selectedDay: String = "All"
+
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                    ImageDecoder.decodeBitmap(source) { decoder, _, _ -> decoder.isMutableRequired = true }
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+                }
+                processTimetableBitmap(bitmap)
+            } catch (_: Exception) {
+                Toast.makeText(context, "Could not load selected photo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
+        if (bitmap != null) {
+            processTimetableBitmap(bitmap)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,6 +69,20 @@ class TimetableFragment : Fragment() {
         rvTimetable = root.findViewById(R.id.rvTimetable)
         layoutEmpty = root.findViewById(R.id.layoutEmptyTimetable)
         fabAdd = root.findViewById(R.id.fabAddClass)
+        btnScanAI = root.findViewById(R.id.btnScanTimetableAI)
+
+        btnScanAI.setOnClickListener {
+            val options = arrayOf("📸 Take Photo of Timetable", "🖼️ Choose from Gallery")
+            AlertDialog.Builder(requireContext())
+                .setTitle("AI Timetable Scanner")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> cameraLauncher.launch(null)
+                        1 -> galleryLauncher.launch("image/*")
+                    }
+                }
+                .show()
+        }
 
         adapter = TimetableAdapter(emptyList()) { itemToDelete ->
             AlertDialog.Builder(requireContext())
@@ -176,6 +221,42 @@ class TimetableFragment : Fragment() {
             FirebaseRepository.addTimetableEntry(entry)
             Toast.makeText(context, "Class scheduled on $day", Toast.LENGTH_SHORT).show()
             loadTimetable()
+        }
+    }
+
+    private fun processTimetableBitmap(bitmap: Bitmap) {
+        val progressDialog = AlertDialog.Builder(requireContext())
+            .setTitle("🤖 Dost AI Vision")
+            .setMessage("Analyzing timetable photo and detecting class schedules...")
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val detected = AIVisionAnalyzer.analyzeTimetablePhoto(bitmap)
+            progressDialog.dismiss()
+
+            if (detected.isNotEmpty()) {
+                val preview = detected.take(5).joinToString("\n") {
+                    "• ${it.dayOfWeek}: ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]"
+                }
+                AlertDialog.Builder(requireContext())
+                    .setTitle("✨ AI Found ${detected.size} Class(es)")
+                    .setMessage("Schedule preview:\n\n$preview\n\nImport all detected classes into your timetable?")
+                    .setPositiveButton("Import All") { _, _ ->
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            for (entry in detected) {
+                                FirebaseRepository.addTimetableEntry(entry)
+                            }
+                            Toast.makeText(context, "Successfully imported ${detected.size} classes!", Toast.LENGTH_LONG).show()
+                            loadTimetable()
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } else {
+                Toast.makeText(context, "No clear timetable entries detected in photo. Please ensure good lighting.", Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

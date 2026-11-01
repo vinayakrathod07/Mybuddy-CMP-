@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ======================================================== -->
+    <!-- MYBUDDY: DOPAMINE RUSH DESIGN SYSTEM (Dark Palette)       -->
+    <!-- ======================================================== -->
+
+    <!-- Core Dopamine Rush Palette (Dark Mode Enhanced) -->
+    <color name="electric_violet">#8B6BF7</color>       <!-- Electric Violet Accent -->
+    <color name="electric_violet_dark">#7952F2</color>  <!-- Base Violet -->
+    <color name="hot_coral">#FF7E73</color>             <!-- Vibrant Coral -->
+    <color name="sunshine_yellow">#FFDF66</color>       <!-- Sunshine Yellow -->
+    <color name="acid_lime">#DEFA7F</color>             <!-- Acid Lime -->
+    <color name="cobalt_blue">#5C80FF</color>           <!-- Cobalt Blue -->
+    <color name="soft_pink">#FFB3D6</color>             <!-- Soft Pink -->
+    <color name="electric_cyan">#4DF7F7</color>
+
+    <!-- Primary Canvas & Surfaces (Electric Obsidian) -->
+    <color name="bg_light">#171421</color>              <!-- Electric Obsidian Night Background -->
+    <color name="surface_light">#262237</color>         <!-- Elevated Dark Card Surface -->
+    <color name="surface_subtle">#1F1B2E</color>        <!-- Dark Sunken Input Surface -->
+    <color name="surface_border">#37314E</color>        <!-- Dark Card Stroke -->
+    <color name="divider_color">#37314E</color>
+
+    <!-- Typography (Pure White & Slate Violet) -->
+    <color name="text_primary">#FFFFFF</color>          <!-- Crisp Pure White -->
+    <color name="text_secondary">#BBB5D4</color>        <!-- Soft Lavender Gray -->
+    <color name="text_disabled">#6E6988</color>
+    <color name="text_muted">#8E89A8</color>
+    <color name="text_light">#FFFFFF</color>
+
+    <!-- Semantic Status Colors (Night Mode Balanced) -->
+    <color name="status_safe">#26D695</color>
+    <color name="status_safe_bg">#183226</color>
+    <color name="status_warning">#FFBA38</color>
+    <color name="status_warning_bg">#362814</color>
+    <color name="status_critical">#FF6380</color>
+    <color name="status_critical_bg">#361822</color>
+
+    <!-- Priority Aliases -->
+    <color name="priority_urgent">#FF6380</color>
+    <color name="priority_high">#FFBA38</color>
+    <color name="priority_medium">#8B6BF7</color>
+    <color name="priority_low">#26D695</color>
+
+    <!-- Brand Aliases for Compatibility -->
+    <color name="brand_primary">#8B6BF7</color>
+    <color name="brand_primary_variant">#7952F2</color>
+    <color name="brand_primary_glow">#408B6BF7</color>
+    <color name="brand_secondary">#FF7E73</color>
+    <color name="brand_secondary_variant">#FF6B5E</color>
+    <color name="brand_purple">#8B6BF7</color>
+
+    <!-- Compatibility Aliases for Lavender & Slate References -->
+    <color name="lavender_bg">#171421</color>
+    <color name="lavender_surface">#1F1B2E</color>
+    <color name="lavender_card">#262237</color>
+    <color name="lavender_primary">#8B6BF7</color>
+    <color name="lavender_deep">#A288FF</color>
+    <color name="lavender_soft">#342E4C</color>
+    <color name="lavender_light_shadow">#37314E</color>
+    <color name="lavender_dark_shadow">#0D0B14</color>
+    <color name="lavender_divider">#37314E</color>
+
+    <color name="neu_bg">#171421</color>
+    <color name="neu_surface">#262237</color>
+    <color name="neu_shadow_dark">#0D0B14</color>
+    <color name="neu_shadow_light">#37314E</color>
+    <color name="neu_sunken">#1F1B2E</color>
+    <color name="neu_sunken_border">#37314E</color>
+    <color name="neu_border_subtle">#37314E</color>
+    <color name="neu_card_stroke">#37314E</color>
+
+    <color name="slate_900">#FFFFFF</color>
+    <color name="slate_800">#F0ECFA</color>
+    <color name="slate_700">#D9D3EB</color>
+    <color name="slate_600">#BBB5D4</color>
+    <color name="slate_500">#BBB5D4</color>
+    <color name="slate_400">#6E6988</color>
+    <color name="slate_300">#37314E</color>
+    <color name="slate_200">#37314E</color>
+    <color name="slate_100">#1F1B2E</color>
+    <color name="slate_50">#171421</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>

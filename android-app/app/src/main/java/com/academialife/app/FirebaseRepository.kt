@@ -104,6 +104,36 @@ object FirebaseRepository {
         }
     }
 
+    suspend fun loginOrRegisterGoogleUser(email: String, fullName: String, googleId: String): Boolean {
+        if (email.isEmpty()) return false
+        val safePass = "MyBuddyAuth_" + googleId.take(12).ifEmpty { "Secure2026" }
+        
+        // 1. Try to sign in with standard email credentials
+        val (signInOk, _) = signInEmail(email, safePass)
+        if (signInOk) return true
+
+        // 2. Try to register as a new verified user
+        val (regOk, _) = registerEmail(email, safePass, fullName)
+        if (regOk) return true
+
+        // 3. Fallback: anonymous or current auth session + update local profile
+        return try {
+            if (auth.currentUser == null) {
+                auth.signInAnonymously().await()
+            }
+            val uid = getCurrentUserId()
+            val profile = StudentProfile(
+                userId = uid,
+                email = email,
+                fullName = fullName.ifEmpty { "Student" }
+            )
+            saveProfile(profile)
+            true
+        } catch (_: Exception) {
+            true // Allow student to proceed into dashboard with guest fallback
+        }
+    }
+
     fun signOut() {
         auth.signOut()
     }
@@ -374,6 +404,9 @@ object FirebaseRepository {
         return try {
             firestore.collection("users").document(uid).collection("tasks").document(taskId)
                 .update("status", status).await()
+            if (status == "completed") {
+                addXP(50, "Completed task")
+            }
             true
         } catch (e: Exception) {
             android.util.Log.e("FirebaseRepository", "updateTaskStatus failed: ${e.message}")
@@ -728,7 +761,7 @@ object FirebaseRepository {
                 NotificationItem(
                     id = "notif_welcome",
                     userId = uid,
-                    title = "AcademiaLife Companion",
+                    title = "MyBuddy Companion",
                     message = "All academic activities are on track. No pending attendance warnings or overdue submissions.",
                     type = "general"
                 )
@@ -825,9 +858,9 @@ object FirebaseRepository {
     }
 
     // ==========================================
-    // 11. AI ASSISTANT RAG ENGINE
+    // 11. DOST — MULTILINGUAL AI ACADEMIC TUTOR
     // ==========================================
-    suspend fun answerQuestion(userQuery: String): ChatMessage {
+    suspend fun answerQuestion(userQuery: String, language: String = "English"): ChatMessage {
         val queryLower = userQuery.lowercase(Locale.ROOT)
         val timetable = getTimetable()
         val tasks = getTasks()
@@ -840,53 +873,283 @@ object FirebaseRepository {
         var answer = ""
         var sourceText = ""
 
-        if (queryLower.contains("class") || queryLower.contains("timetable") || queryLower.contains("schedule") || queryLower.contains("today")) {
-            val todayDay = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date())
-            val todays = timetable.filter { it.dayOfWeek.equals(todayDay, ignoreCase = true) }
-            if (todays.isNotEmpty()) {
-                answer = "You have ${todays.size} class(es) scheduled for today ($todayDay):\n" +
-                        todays.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) in ${it.classroom}" }
-                sourceText = "Source: Live Timetable ($todayDay)"
-            } else {
-                answer = "You have no classes scheduled for today ($todayDay) in your timetable."
-                sourceText = "Source: Live Timetable"
+        // Multi-language keyword detectors
+        val isTimetableQuery = queryLower.contains("class") || queryLower.contains("timetable") ||
+                queryLower.contains("schedule") || queryLower.contains("today") ||
+                queryLower.contains("कक्षा") || queryLower.contains("टाइमटेबल") || queryLower.contains("आज") ||
+                queryLower.contains("ತರಗತಿ") || queryLower.contains("తరగతి") || queryLower.contains("வகுப்பு") ||
+                queryLower.contains("तासिका") || queryLower.contains("clase") || queryLower.contains("horario")
+
+        val isAttendanceQuery = queryLower.contains("attendance") || queryLower.contains("miss") ||
+                queryLower.contains("present") || queryLower.contains("bunk") ||
+                queryLower.contains("उपस्थिति") || queryLower.contains("हाजिरी") || queryLower.contains("ಹಾಜರಾತಿ") ||
+                queryLower.contains("హాజరు") || queryLower.contains("வருகை") || queryLower.contains("हजेरी") ||
+                queryLower.contains("asistencia")
+
+        val isTasksQuery = queryLower.contains("task") || queryLower.contains("assignment") ||
+                queryLower.contains("exam") || queryLower.contains("due") || queryLower.contains("deadline") ||
+                queryLower.contains("कार्य") || queryLower.contains("असाइनमेंट") || queryLower.contains("परीक्षा") ||
+                queryLower.contains("ಕಾರ್ಯ") || queryLower.contains("పరీక్ష") || queryLower.contains("பணி") ||
+                queryLower.contains("tarea") || queryLower.contains("examen")
+
+        val isStudyQuery = queryLower.contains("study") || queryLower.contains("timer") ||
+                queryLower.contains("plan") || queryLower.contains("routine") ||
+                queryLower.contains("पढ़ाई") || queryLower.contains("अध्ययन") || queryLower.contains("ಓದು") ||
+                queryLower.contains("చదువు") || queryLower.contains("படிப்பு") || queryLower.contains("estudio")
+
+        val isDocQuery = queryLower.contains("document") || queryLower.contains("notes") ||
+                queryLower.contains("syllabus") || queryLower.contains("नोट्स") || queryLower.contains("दस्तऐवज") ||
+                queryLower.contains("nota") || queryLower.contains("apuntes")
+
+        val todayDay = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date())
+        val todaysClasses = timetable.filter { it.dayOfWeek.equals(todayDay, ignoreCase = true) }
+
+        if (isTimetableQuery) {
+            when (language) {
+                "Hindi" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "नमस्ते दोस्त! आज ($todayDay) आपकी ${todaysClasses.size} कक्षाएं हैं:\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]" }
+                    } else {
+                        "नमस्ते दोस्त! आज ($todayDay) आपके टाइमटेबल में कोई कक्षा निर्धारित नहीं है। आप अध्ययन कर सकते हैं!"
+                    }
+                    sourceText = "स्रोत: लाइव टाइमटेबल"
+                }
+                "Hinglish" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "Hey Dost! Aaj ($todayDay) aapki ${todaysClasses.size} classes hain:\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) in ${it.classroom}" }
+                    } else {
+                        "Hey Dost! Aaj ($todayDay) timetable mein koi class scheduled nahi hai. Self-study kar sakte ho!"
+                    }
+                    sourceText = "Source: Live Timetable"
+                }
+                "Kannada" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "ನಮಸ್ಕಾರ ದೋಸ್ತ್! ಇಂದು ($todayDay) ನಿಮಗಾಗಿ ${todaysClasses.size} ತರಗತಿಗಳು ನಿಗದಿಯಾಗಿವೆ:\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]" }
+                    } else {
+                        "ನಮಸ್ಕಾರ ದೋಸ್ತ್! ಇಂದು ($todayDay) ಯಾವುದೇ ತರಗತಿಗಳು ನಿಗದಿಯಾಗಿಲ್ಲ."
+                    }
+                    sourceText = "ಮೂಲ: ಲೈವ್ ವೇಳಾಪಟ್ಟಿ"
+                }
+                "Telugu" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "హలో దోస్త్! ఈరోజు ($todayDay) మీకు ${todaysClasses.size} తరగతులు ఉన్నాయి:\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]" }
+                    } else {
+                        "హలో దోస్త్! ఈరోజు మీకు ఎలాంటి తరగతులు లేవు."
+                    }
+                    sourceText = "మూలం: లైవ్ టైమ్‌టేబుల్"
+                }
+                "Tamil" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "வணக்கம் தோழா! இன்று ($todayDay) உங்களுக்கு ${todaysClasses.size} வகுப்புகள் உள்ளன:\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]" }
+                    } else {
+                        "வணக்கம் தோழா! இன்று உங்களுக்கு வகுப்புகள் ஏதுமில்லை."
+                    }
+                    sourceText = "மூலம்: நேரலை கால அட்டவணை"
+                }
+                "Marathi" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "नमस्कार मित्रा! आज ($todayDay) तुमच्या ${todaysClasses.size} तासिका आहेत:\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]" }
+                    } else {
+                        "नमस्कार मित्रा! आज कोणत्याही तासिका ठरवलेल्या नाहीत."
+                    }
+                    sourceText = "स्रोत: वेळापत्रक"
+                }
+                "Spanish" -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "¡Hola amigo! Tienes ${todaysClasses.size} clase(s) programadas para hoy ($todayDay):\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) en ${it.classroom}" }
+                    } else {
+                        "¡Hola amigo! No tienes clases programadas para hoy ($todayDay)."
+                    }
+                    sourceText = "Fuente: Horario en vivo"
+                }
+                else -> {
+                    answer = if (todaysClasses.isNotEmpty()) {
+                        "Hey Dost! You have ${todaysClasses.size} class(es) scheduled for today ($todayDay):\n" +
+                                todaysClasses.joinToString("\n") { "• ${it.subjectName} (${it.startTime} - ${it.endTime}) in ${it.classroom}" }
+                    } else {
+                        "Hey Dost! You have no classes scheduled for today ($todayDay). A great day to study or relax!"
+                    }
+                    sourceText = "Source: Live Timetable ($todayDay)"
+                }
             }
-        } else if (queryLower.contains("attendance") || queryLower.contains("miss") || queryLower.contains("present") || queryLower.contains("bunk")) {
-            answer = "Overall attendance is ${attSummary.overallPercentage}% across ${attSummary.totalConducted} classes conducted.\n\n" +
-                    attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses}). ${it.explanation}" }
-            sourceText = "Source: Firestore Attendance ledger"
-        } else if (queryLower.contains("task") || queryLower.contains("assignment") || queryLower.contains("exam") || queryLower.contains("due")) {
+        } else if (isAttendanceQuery) {
+            when (language) {
+                "Hindi" -> {
+                    answer = "दोस्त, आपकी कुल उपस्थिति ${attSummary.overallPercentage}% है (${attSummary.totalConducted} कुल कक्षाओं में से)।\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses}). ${it.explanation}" }
+                    sourceText = "स्रोत: उपस्थिति रजिस्टर"
+                }
+                "Hinglish" -> {
+                    answer = "Dost, aapka overall attendance ${attSummary.overallPercentage}% hai across ${attSummary.totalConducted} conducted classes.\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses}). ${it.explanation}" }
+                    sourceText = "Source: Attendance Register"
+                }
+                "Kannada" -> {
+                    answer = "ದೋಸ್ತ್, ನಿಮ್ಮ ಒಟ್ಟು ಹಾಜರಾತಿ ${attSummary.overallPercentage}% ಆಗಿದೆ (${attSummary.totalConducted} ತರಗತಿಗಳಲ್ಲಿ).\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses})" }
+                    sourceText = "ಮೂಲ: ಹಾಜರಾತಿ ಮಾಹಿತಿ"
+                }
+                "Telugu" -> {
+                    answer = "దోస్త్, మీ మొత్తం హాజరు శాతం ${attSummary.overallPercentage}% (${attSummary.totalConducted} తరగతుల్లో).\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses})" }
+                    sourceText = "మూలం: హాజరు రికార్డు"
+                }
+                "Tamil" -> {
+                    answer = "தோழா, உங்கள் மொத்த வருகை ${attSummary.overallPercentage}% ஆகும் (${attSummary.totalConducted} வகுப்புகளில்).\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses})" }
+                    sourceText = "மூலம்: வருகை பதிவு"
+                }
+                "Marathi" -> {
+                    answer = "मित्रा, तुमची एकूण हजेरी ${attSummary.overallPercentage}% आहे (${attSummary.totalConducted} तासांपैकी).\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses})" }
+                    sourceText = "स्रोत: उपस्थिती नोंद"
+                }
+                "Spanish" -> {
+                    answer = "Amigo, tu asistencia general es del ${attSummary.overallPercentage}% en ${attSummary.totalConducted} clases impartidas.\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses})" }
+                    sourceText = "Fuente: Registro de Asistencia"
+                }
+                else -> {
+                    answer = "Hey Dost! Overall attendance is ${attSummary.overallPercentage}% across ${attSummary.totalConducted} classes conducted.\n\n" +
+                            attSummary.subjectSummaries.joinToString("\n") { "• ${it.subjectName}: ${it.percentage}% (${it.presentCount}/${it.totalClasses}). ${it.explanation}" }
+                    sourceText = "Source: Attendance Ledger"
+                }
+            }
+        } else if (isTasksQuery) {
             val pending = tasks.filter { it.status != "completed" }
-            if (pending.isNotEmpty()) {
-                answer = "You have ${pending.size} pending academic deadlines:\n" +
-                        pending.take(5).joinToString("\n") { "• ${it.title} [Priority: ${it.priorityScore.toInt()} pts] - ${it.priorityReason}" }
-                sourceText = "Source: Tasks & Examination Registry"
-            } else {
-                answer = "Great news! You have zero pending tasks or assignments. Everything is up to date!"
-                sourceText = "Source: Tasks Registry"
+            when (language) {
+                "Hindi" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "दोस्त, आपके पास ${pending.size} असाइनमेंट व डेडलाइन लंबित हैं:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} [प्राथमिकता: ${it.priorityScore.toInt()} अंक] - ${it.priorityReason}" }
+                    } else {
+                        "शाबाश दोस्त! आपके सभी असाइनमेंट पूरे हैं। कोई लंबित कार्य नहीं है!"
+                    }
+                    sourceText = "स्रोत: कार्य और परीक्षा पंजी"
+                }
+                "Hinglish" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "Dost, aapke paas ${pending.size} pending tasks & assignments hain:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} [Priority: ${it.priorityScore.toInt()} pts] - ${it.priorityReason}" }
+                    } else {
+                        "Great job Dost! All tasks are completed. Nothing is pending right now!"
+                    }
+                    sourceText = "Source: Tasks Registry"
+                }
+                "Kannada" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "ದೋಸ್ತ್, ನಿಮಗೆ ${pending.size} ಬಾಕಿ ಇರುವ ಕಾರ್ಯಗಳು ಇವೆ:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} (ಆದ್ಯತೆ: ${it.priorityScore.toInt()} pts)" }
+                    } else {
+                        "ಅಭಿನಂದನೆಗಳು ದೋಸ್ತ್! ನಿಮ್ಮ ಎಲ್ಲಾ ಕಾರ್ಯಗಳು ಪೂರ್ಣಗೊಂಡಿವೆ!"
+                    }
+                    sourceText = "ಮೂಲ: ಕಾರ್ಯಗಳ ಪಟ್ಟಿ"
+                }
+                "Telugu" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "దోస్త్, మీ వద్ద ${pending.size} పెండింగ్ టాస్కులు ఉన్నాయి:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} (ప్రాధాన్యత: ${it.priorityScore.toInt()} pts)" }
+                    } else {
+                        "అద్భుతం దోస్త్! మీ అన్ని టాస్కులు పూర్తయ్యాయి!"
+                    }
+                    sourceText = "మూలం: టాస్క్ రిజిస్ట్రీ"
+                }
+                "Tamil" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "தோழா, உங்களிடம் ${pending.size} நிலுவையிலுள்ள பணிகள் உள்ளன:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} [முன்னுரிமை: ${it.priorityScore.toInt()} pts]" }
+                    } else {
+                        "மிக நன்று தோழா! அனைத்து பணிகளும் முடிந்துவிட்டன!"
+                    }
+                    sourceText = "மூலம்: பணிகள் பதிவேடு"
+                }
+                "Marathi" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "मित्रा, तुमच्याकडे ${pending.size} कामे प्रलंबित आहेत:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} [प्राधान्य: ${it.priorityScore.toInt()} pts]" }
+                    } else {
+                        "उत्तम मित्रा! तुमची सर्व कामे पूर्ण झाली आहेत!"
+                    }
+                    sourceText = "स्रोत: कामे नोंदवही"
+                }
+                "Spanish" -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "Amigo, tienes ${pending.size} tareas académicas pendientes:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} [Prioridad: ${it.priorityScore.toInt()} pts]" }
+                    } else {
+                        "¡Excelente amigo! Todas tus tareas están completadas."
+                    }
+                    sourceText = "Fuente: Registro de Tareas"
+                }
+                else -> {
+                    answer = if (pending.isNotEmpty()) {
+                        "Hey Dost! You have ${pending.size} pending academic deadlines:\n" +
+                                pending.take(5).joinToString("\n") { "• ${it.title} [Priority: ${it.priorityScore.toInt()} pts] - ${it.priorityReason}" }
+                    } else {
+                        "Great news Dost! You have zero pending tasks or assignments. Everything is up to date!"
+                    }
+                    sourceText = "Source: Tasks & Examination Registry"
+                }
             }
-        } else if (queryLower.contains("study") || queryLower.contains("timer") || queryLower.contains("plan")) {
+        } else if (isStudyQuery) {
             val upcoming = studySessions.filter { it.status == "scheduled" }
-            if (upcoming.isNotEmpty()) {
-                answer = "You have ${upcoming.size} planned study block(s):\n" +
+            answer = if (upcoming.isNotEmpty()) {
+                "Dost, you have ${upcoming.size} planned study block(s):\n" +
                         upcoming.take(3).joinToString("\n") { "• ${it.title} (${it.sessionDate} at ${it.startTime}, ${it.durationMinutes} mins) - ${it.recommendationReason}" }
-                sourceText = "Source: Study Planner Sessions"
             } else {
-                answer = "You don't have scheduled study sessions yet. Tap 'Auto-Generate Plan' in the Study Planner to build an optimized routine!"
-                sourceText = "Source: Study Planner"
+                "Dost, you don't have scheduled study sessions yet. Tap 'Auto-Generate Plan' in Study Planner to build an optimized routine!"
             }
-        } else if (queryLower.contains("document") || queryLower.contains("notes") || queryLower.contains("syllabus")) {
-            if (docs.isNotEmpty()) {
-                answer = "You have ${docs.size} academic documents in your Document Vault:\n" +
+            sourceText = "Source: Study Planner Sessions"
+        } else if (isDocQuery) {
+            answer = if (docs.isNotEmpty()) {
+                "Dost, you have ${docs.size} academic documents in your Document Vault:\n" +
                         docs.take(4).joinToString("\n") { "• ${it.title} [${it.category}] (${it.subjectName})" }
-                sourceText = "Source: Document Vault"
             } else {
-                answer = "Your Document Vault is currently empty. You can add syllabus, lecture slides, and past papers from the Vault tab."
-                sourceText = "Source: Document Vault"
+                "Your Document Vault is empty right now. You can add syllabus and notes anytime!"
             }
+            sourceText = "Source: Document Vault"
         } else {
-            answer = "Hello! I am your AcademiaLife AI tutor. I monitor your attendance compliance, track your assignment priorities, organize your study timer sessions, and check your timetable. How can I help you today?"
-            sourceText = "Source: AcademiaLife Academic Core"
+            when (language) {
+                "Hindi" -> {
+                    answer = "नमस्ते! मैं आपका MyBuddy 'दोस्त' AI ट्यूटर हूँ। मैं आपके टाइमटेबल, अटेंडेंस और असाइनमेंट में आपकी सहायता करता हूँ। आप मुझसे कुछ भी पूछ सकते हैं!"
+                    sourceText = "स्रोत: MyBuddy AI Core"
+                }
+                "Hinglish" -> {
+                    answer = "Hey Dost! Main aapka MyBuddy AI tutor hoon. Main aapke timetable, attendance compliance aur assignment deadlines ko track karta hoon. Kuch bhi poocho!"
+                    sourceText = "Source: MyBuddy AI Core"
+                }
+                "Kannada" -> {
+                    answer = "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ MyBuddy 'ದೋಸ್ತ್' AI ಬೋಧಕ. ನಿಮ್ಮ ವೇಳಾಪಟ್ಟಿ, ಹಾಜರಾತಿ ಮತ್ತು ಕಾರ್ಯಗಳ ಬಗ್ಗೆ ನಾನು ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ಏನು ಬೇಕಾದರೂ ಕೇಳಿ!"
+                    sourceText = "ಮೂಲ: MyBuddy AI Core"
+                }
+                "Telugu" -> {
+                    answer = "హలో! నేను మీ MyBuddy 'దోస్త్' AI ట్యూటర్‌ని. మీ టైమ్‌టేబుల్, హాజరు మరియు టాస్కుల వివరాలు చెప్పగలను. నన్ను ఏదైనా అడగండి!"
+                    sourceText = "మూలం: MyBuddy AI Core"
+                }
+                "Tamil" -> {
+                    answer = "வணக்கம்! நான் உங்கள் MyBuddy 'தோழா' AI வழிகாட்டி. கால அட்டவணை, வருகை மற்றும் பணிகள் பற்றி என்னிடம் எதையும் கேட்கலாம்!"
+                    sourceText = "மூலம்: MyBuddy AI Core"
+                }
+                "Marathi" -> {
+                    answer = "नमस्कार! मी तुमचा MyBuddy 'दोस्त' AI ट्यूटर आहे. वेळापत्रक, हजेरी आणि असाइनमेंटबद्दल काहीही विचारा!"
+                    sourceText = "स्रोत: MyBuddy AI Core"
+                }
+                "Spanish" -> {
+                    answer = "¡Hola! Soy tu tutor de IA MyBuddy 'Dost'. Te ayudo con tu horario, asistencia y tareas pendientes. ¡Pregúntame lo que necesites!"
+                    sourceText = "Fuente: MyBuddy AI Core"
+                }
+                else -> {
+                    answer = "Hey! I am your MyBuddy AI tutor, 'Dost'. I track your timetable, attendance compliance, assignment priorities, and study plans. How can I help you today?"
+                    sourceText = "Source: MyBuddy Academic Core"
+                }
+            }
         }
 
         return ChatMessage(
@@ -895,5 +1158,157 @@ object FirebaseRepository {
             content = answer,
             sources = sourceText
         )
+    }
+
+    // ==========================================
+    // 12. DOPAMINE GAMIFICATION & STREAKS
+    // ==========================================
+    private var cachedGamification = GamificationProfile()
+
+    fun getGamification(): GamificationProfile {
+        return cachedGamification
+    }
+
+    fun addXP(points: Int, reason: String): GamificationProfile {
+        val newXP = cachedGamification.xpPoints + points
+        val newLevel = when {
+            newXP >= 2500 -> 5
+            newXP >= 1500 -> 4
+            newXP >= 800 -> 3
+            newXP >= 300 -> 2
+            else -> 1
+        }
+        val newTitle = when (newLevel) {
+            5 -> "Academic Titan ⚡"
+            4 -> "Dean's List 🌟"
+            3 -> "Prodigy 🚀"
+            2 -> "Scholar 🎓"
+            else -> "Freshman 🌱"
+        }
+        cachedGamification = cachedGamification.copy(
+            xpPoints = newXP,
+            level = newLevel,
+            levelTitle = newTitle
+        )
+        return cachedGamification
+    }
+
+    fun getAvailableBadges(): List<BadgeItem> {
+        val g = cachedGamification
+        return listOf(
+            BadgeItem("b1", "First Step", "Complete your first task in MyBuddy", "🎯", g.completedTasksCount >= 1, 50),
+            BadgeItem("b2", "Focus Master", "Complete a 25-minute Pomodoro focus block", "⏱️", g.focusMinutesTotal >= 25, 100),
+            BadgeItem("b3", "Streak Champion", "Maintain a 3-day consecutive study streak", "🔥", g.streakDays >= 3, 150),
+            BadgeItem("b4", "Assignment Crusher", "Finish 5 assignments before the deadline", "📚", g.completedTasksCount >= 5, 200),
+            BadgeItem("b5", "Hydration Hero", "Reach your 8 glasses of water goal in a day", "💧", true, 75),
+            BadgeItem("b6", "Consistency King", "Log attendance across all subjects", "👑", true, 120)
+        )
+    }
+
+    // ==========================================
+    // 13. STUDENT FINANCE TRACKER
+    // ==========================================
+    private val cachedExpenses = mutableListOf(
+        ExpenseItem("exp_1", "", "Campus Cafeteria Lunch", 140.0, "Food", "Today", System.currentTimeMillis()),
+        ExpenseItem("exp_2", "", "Metro Rail Pass", 250.0, "Travel", "Yesterday", System.currentTimeMillis() - 86400000L),
+        ExpenseItem("exp_3", "", "Operating Systems Textbook", 450.0, "Books", "2 days ago", System.currentTimeMillis() - 172800000L)
+    )
+    private var monthlyBudgetAmount = 6000.0
+
+    fun getExpenses(): List<ExpenseItem> = cachedExpenses.toList()
+
+    fun addExpense(title: String, amount: Double, category: String): ExpenseItem {
+        val item = ExpenseItem(
+            id = "exp_" + UUID.randomUUID().toString().take(8),
+            title = title,
+            amount = amount,
+            category = category,
+            date = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(Date()),
+            timestamp = System.currentTimeMillis()
+        )
+        cachedExpenses.add(0, item)
+        addXP(20, "Logged an expense")
+        return item
+    }
+
+    fun deleteExpense(id: String) {
+        cachedExpenses.removeAll { it.id == id }
+    }
+
+    fun getBudget(): FinanceBudget {
+        val totalSpent = cachedExpenses.sumOf { it.amount }
+        return FinanceBudget(monthlyBudget = monthlyBudgetAmount, spentThisMonth = totalSpent)
+    }
+
+    fun setBudget(newBudget: Double) {
+        monthlyBudgetAmount = newBudget
+    }
+
+    // ==========================================
+    // 14. STUDENT WELLNESS & DAILY HABITS
+    // ==========================================
+    private var todayWellness = WellnessEntry(
+        date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+        mood = "Motivated",
+        waterGlasses = 5,
+        sleepHours = 7.5,
+        journalNote = "Feeling energized for today's lectures!"
+    )
+
+    fun getTodayWellness(): WellnessEntry = todayWellness
+
+    fun saveWellness(mood: String, water: Int, sleep: Double, note: String): WellnessEntry {
+        todayWellness = todayWellness.copy(
+            mood = mood,
+            waterGlasses = water,
+            sleepHours = sleep,
+            journalNote = note
+        )
+        addXP(30, "Updated wellness habits")
+        return todayWellness
+    }
+
+    fun incrementWater(): Int {
+        val newCount = (todayWellness.waterGlasses + 1).coerceAtMost(8)
+        todayWellness = todayWellness.copy(waterGlasses = newCount)
+        addXP(15, "Drank a glass of water")
+        return newCount
+    }
+
+    // ==========================================
+    // 15. SMART NOTES
+    // ==========================================
+    private val cachedNotes = mutableListOf(
+        StudentNote("note_1", "", "OS Process Scheduling Cheatsheet", "Round Robin uses time quantum. Priority Scheduling can suffer from starvation (fix with aging). Multi-level feedback queues are dynamic.", "Operating Systems", isPinned = true, colorHex = "#7952F2", updatedAt = "Today"),
+        StudentNote("note_2", "", "DBMS Normalization Summary", "1NF: Atomic values. 2NF: No partial dependency on candidate key. 3NF: No transitive dependency. BCNF: For every X -> Y, X is super key.", "Database Systems", isPinned = true, colorHex = "#FF6B5E", updatedAt = "Yesterday"),
+        StudentNote("note_3", "", "Exam Formulas - Discrete Math", "Graph theory: Handshaking lemma sum of degrees = 2|E|. Euler formula: V - E + F = 2. Pigeonhole principle basics.", "Mathematics", isPinned = false, colorHex = "#4169F5", updatedAt = "3 days ago")
+    )
+
+    fun getStudentNotes(): List<StudentNote> = cachedNotes.toList()
+
+    fun saveStudentNote(title: String, content: String, subjectTag: String, colorHex: String = "#7952F2"): StudentNote {
+        val note = StudentNote(
+            id = "note_" + UUID.randomUUID().toString().take(8),
+            title = title,
+            content = content,
+            subjectTag = subjectTag,
+            colorHex = colorHex,
+            updatedAt = "Just now"
+        )
+        cachedNotes.add(0, note)
+        addXP(25, "Created a study note")
+        return note
+    }
+
+    fun deleteStudentNote(id: String) {
+        cachedNotes.removeAll { it.id == id }
+    }
+
+    fun togglePinStudentNote(id: String) {
+        val idx = cachedNotes.indexOfFirst { it.id == id }
+        if (idx >= 0) {
+            val curr = cachedNotes[idx]
+            cachedNotes[idx] = curr.copy(isPinned = !curr.isPinned)
+        }
     }
 }

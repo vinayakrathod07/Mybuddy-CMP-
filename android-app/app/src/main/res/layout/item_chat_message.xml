@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="AcademiaLife AI Tutor"
+                android:text="MyBuddy • Dost"
                 android:textColor="@color/brand_primary"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"

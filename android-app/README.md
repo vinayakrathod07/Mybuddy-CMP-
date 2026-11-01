@@ -1,18 +1,18 @@
-# 🎓 AcademiaLife (MyBuddy) - Native Neumorphic Android Application
+# ⚡ MyBuddy - Vibrant Student Life & Academic Companion
 
-A high-performance native Android application converted from the Student Academic Assistant web platform, completely redesigned with a **Neumorphic (Soft UI) tactile aesthetic** and packed with full feature parity:
+A high-performance native Android application transformed with the **Dopamine Rush** design system and comprehensive student life management features:
 
-- 🎨 **Neumorphic Design System:** Custom extruded surfaces, dual-shadow ambient highlights, inset debossed text inputs, soft pill chips, and tactile buttons.
-- 📊 **Dynamic Dashboard:** Real-time academic metrics, Daily AI Academic Briefing, and One-Tap Attendance Quick-Logger.
-- 🗓️ **Timetable & Collision Detection:** Weekly schedule manager with real-time time interval overlap warning.
-- ✅ **Deterministic Task Priority:** Urgency algorithms weighing type, proximity, effort, and base weight into a 0–100 score.
-- 📈 **Attendance Compliance Ledger:** Exact mathematical calculations determining consecutive classes needed or safe margin before shortage (< 75%).
-- ⏱️ **Study Planner & Pomodoro Timer:** 25-minute focus session / 5-minute break countdown timer with cycle counter and AI study plan auto-generator.
-- 📚 **Course Document Vault:** Categorized academic repository (Syllabus, Lecture Notes, Past Papers, Cheatsheets).
-- 🔔 **Smart Alerts Center:** Real-time warnings for attendance shortages, approaching deadlines, and exam schedules.
-- 🔍 **Global Search Hub:** Instant search across subjects, timetable slots, tasks, marks, and documents.
-- 🤖 **Voice-Enabled AI Tutor:** Real-time academic RAG assistant with Android `SpeechRecognizer` voice input and `TextToSpeech` audio playback.
-- 👤 **Student Profile & Settings:** Custom minimum attendance target (75%, 80%, etc.), study hour preferences, and Firebase Auth / Demo Guest switcher.
+- 🎨 **Dopamine Rush Visual Design System:** Electric Violet (`#7952F2`), Hot Coral (`#FF6B5E`), Sunshine Yellow (`#FFD84D`), Acid Lime (`#D6F56A`), Cobalt Blue (`#4169F5`), Soft Pink (`#FF9FCB`), and Day/Night Dark Mode.
+- 🚀 **Dynamic Home Dashboard:** Time-based personalized greeting, study streak counter, XP points & level badge, animated daily productivity score, urgent deadlines, and one-tap hydration tracker.
+- 🤖 **Multilingual AI Tutor ("Dost"):** Centered on the bottom navigation bar, supporting 8 languages (English, Hindi, Hinglish, Kannada, Telugu, Tamil, Marathi, Spanish) with Google ML Kit AI Vision text scanning for timetable photos and syllabus notes.
+- 💰 **Student Finance & Budget Wallet:** Monthly budget manager with real-time remaining calculations, categorized expense logging (Food, Travel, Books, Shopping), and XP rewards (+20 XP).
+- 🌿 **Student Wellness & Daily Habits:** Daily mood check-in (5 mood states), 8-glass daily water hydration tracker, sleep tracker, and daily journal reflection (+30 XP).
+- 🏆 **Gamification & Badges:** XP points system, level progression (Freshman to Academic Titan), study streaks, and genuine activity-based achievement badges (Focus Master, Streak Champion, Assignment Crusher).
+- 🗓️ **Timetable Schedule with AI Vision:** Weekly lectures & labs manager with AI timetable photo auto-import and schedule collision warnings.
+- 📈 **Attendance Compliance Ledger:** Precise mathematical safety margin calculations, safe skips, and consecutive classes required to maintain target percentage.
+- ⏱️ **Study Zone & Pomodoro Timer:** 25/5 and 50/10 focus presets, break timers, focus session history, and smart routine auto-generation.
+- 📚 **Smart Notes & Course Document Vault:** Categorized academic storage for lecture notes, question papers, and cheatsheets.
+- 🌓 **Complete Theme Manager:** Seamless Light Mode, Dark Mode (`#171421`), and System theme switcher with persistent preferences.
 
 ---
 
@@ -22,7 +22,7 @@ A high-performance native Android application converted from the Student Academi
 1. Enable **USB Debugging** on your Android device (Settings -> Developer Options -> USB Debugging).
 2. Connect your phone to your PC via USB cable.
 3. Double-click `run_on_mobile.bat` in the project root.
-   - It will automatically detect `adb` from your Android SDK, install the pre-built APK, and launch the app!
+   - It will automatically detect `adb`, install the pre-built APK, and launch MyBuddy!
 
 ### Option 2: Android Studio
 1. Open **Android Studio**.
@@ -40,51 +40,26 @@ android-app/app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
-## 🎨 Neumorphic Design System Architecture
-
-```
-android-app/app/src/main/res/drawable/
-├── bg_neumorphic_card.xml          # Extruded dual-shadow surface (20dp radius)
-├── bg_neumorphic_card_glow.xml     # Extruded card with vibrant primary accent glow
-├── bg_neumorphic_sunken.xml        # Inset debossed container for text fields & search bars
-├── bg_neumorphic_btn.xml           # Tactile button state-list (Raised -> Sunken on press)
-├── bg_neumorphic_btn_primary.xml   # High-contrast indigo button with soft drop shadow
-├── bg_neumorphic_circle_btn.xml    # Circular tactile buttons for FABs, Mic, Timer controls
-├── bg_neumorphic_chip.xml          # Pill chip (Normal vs Sunken Selected)
-├── bg_neumorphic_top_bar.xml       # Seamless header toolbar with soft drop shadow
-├── bg_neumorphic_bottom_nav.xml    # Floating bottom navigation bar with ambient top shadow
-└── bg_pill_safe / warning / critical.xml # Semantic status compliance badges
-```
-
----
-
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```
 android-app/app/src/main/java/com/academialife/app/
-├── MainActivity.kt               # Navigation host with Neumorphic Top Bar & Bottom Navigation
-├── Models.kt                     # Data models (Profile, Timetable, Task, Attendance, Study, Doc, Notif)
-├── AcademicCalculators.kt        # Deterministic scoring, attendance compliance math, conflict detection
-├── FirebaseRepository.kt         # Firestore CRUD, Auth, Smart Notifications, Global Search, AI RAG
-├── DashboardFragment.kt          # Metric cards, one-tap attendance logger, upcoming schedule & tasks
-├── TimetableFragment.kt          # Day-filtered timetable with collision detection dialog
-├── TimetableAdapter.kt           # Class cards with room, time badge, faculty, and delete action
-├── TasksFragment.kt              # Assignment/exam tracker with filter chips and completion progress bar
-├── TasksAdapter.kt               # Task cards with priority score pills and strike-through toggling
-├── AttendanceFragment.kt         # Overall compliance ring, target comparison, and subject cards
-├── AttendanceAdapter.kt          # Subject cards with [+ Log Present] and [- Log Absent] actions
-├── MarksAnalyticsFragment.kt     # GPA/Average analytics, top scored subject, assessment history
-├── MarksAdapter.kt               # Assessment cards with percentage badge
-├── StudyPlannerFragment.kt       # Pomodoro countdown timer (25m/5m), auto-generator, and session list
-├── StudySessionAdapter.kt        # Scheduled study blocks with check-off action
-├── DocumentVaultFragment.kt      # Categorized course documents with search and open URL action
-├── DocumentAdapter.kt            # Document cards with category pill
-├── NotificationsFragment.kt      # Smart alerts for attendance shortage, deadlines, and exams
-├── NotificationsAdapter.kt       # Notification cards with alert icons
-├── SearchFragment.kt             # Global instant search across all student academic records
-├── SearchAdapter.kt              # Categorized search results with tap-to-navigate
-├── AIChatFragment.kt             # AI Academic Assistant with SpeechRecognizer and TextToSpeech
-└── ChatAdapter.kt                # Neumorphic chat bubbles with read-aloud TTS button
+├── MainActivity.kt               # Navigation host with 5 bottom tabs: Home, Planner, Dost AI, Timetable, Life
+├── Models.kt                     # Data models (Gamification, Wallet, Wellness, Notes, Timetable, Tasks, Attendance)
+├── AIVisionAnalyzer.kt           # Google ML Kit Text Recognition for timetable & attendance photo scanning
+├── ThemeManager.kt               # Dynamic Day/Night Dark Mode manager and SharedPreferences persistence
+├── FirebaseRepository.kt         # Firestore CRUD, Multilingual AI RAG Engine, Gamification XP, Finance & Wellness
+├── DashboardFragment.kt          # Dopamine hero gradient card, productivity score, module grid, hydration widget
+├── LifestyleFragment.kt          # Student Life Zone (Wallet Budget, Wellness Habits, Badges & Achievements)
+├── AIChatFragment.kt             # Multilingual AI Tutor "Dost" with voice TTS/STT and camera photo scanner
+├── TimetableFragment.kt          # Schedule manager with AI timetable photo scanner and collision detection
+├── TasksFragment.kt              # Assignment & exam planner with priority scoring and completion XP (+50 XP)
+├── AttendanceFragment.kt         # Attendance compliance ledger with safe skips and AI sheet scanner
+├── StudyPlannerFragment.kt       # Pomodoro timer (25/5, 50/10), cycle tracker, and study routine generator
+├── MarksAnalyticsFragment.kt     # GPA/Average analytics, top-scored subjects, and assessment records
+├── DocumentVaultFragment.kt      # Course document repository (Lecture Notes, Syllabus, Cheatsheets)
+├── ProfileFragment.kt            # Appearance / Dark Mode selector, academic targets, and account management
+├── LoginActivity.kt              # Dopamine-themed authentication with Google Sign-In and Guest Mode
 ```
 
 ---
@@ -92,4 +67,3 @@ android-app/app/src/main/java/com/academialife/app/
 ## 👨‍💻 Credits & Attribution
 
 **Developed and Managed by Vinay Rathod**
-

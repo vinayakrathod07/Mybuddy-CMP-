@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/neu_bg"
+    android:background="@color/bg_light"
     android:fillViewport="true">
 
     <LinearLayout
@@ -13,278 +13,437 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="12dp"
-        android:paddingBottom="32dp">
+        android:paddingBottom="36dp">
 
-        <!-- Student Profile Header (Neumorphic) -->
+        <!-- Top Header: Logo + Date Badge + Profile Icon -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-            <LinearLayout
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="36dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitStart"
+                android:src="@drawable/img_mybuddy_logo"
+                android:contentDescription="MyBuddy Logo" />
+
+            <View
                 android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Today's Date Pill Badge -->
+            <TextView
+                android:id="@+id/tvTodayDate"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:background="@drawable/bg_neumorphic_chip_idle"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="Wed, 01 Nov"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvWelcomeName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Welcome, Student 👋"
-                    android:textColor="@color/text_primary"
-                    android:textSize="26sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAcademicInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="National Institute of Technology • Semester 6 • 2026–2027"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <!-- Tactile Avatar / Profile Icon Button -->
+            <!-- Profile Avatar Button -->
             <FrameLayout
                 android:id="@+id/btnQuickProfile"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_neumorphic_circle_btn"
                 android:clickable="true"
                 android:focusable="true">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_profile"
-                    app:tint="@color/brand_primary" />
+                    app:tint="@color/electric_violet" />
             </FrameLayout>
         </LinearLayout>
 
-        <!-- Daily AI Academic Briefing (Neumorphic Extruded Card) -->
+        <!-- ========================================== -->
+        <!-- 1. VIBRANT HERO GRADIENT SECTION           -->
+        <!-- ========================================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_gradient_hero_violet"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:elevation="6dp">
+
+            <!-- Time-based Personalized Greeting -->
+            <TextView
+                android:id="@+id/tvWelcomeName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rise and Grind, Student! 🚀"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <!-- Motivational Message / College Tag -->
+            <TextView
+                android:id="@+id/tvAcademicInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="National Institute of Technology • Semester 6"
+                android:textColor="#DCD6FF"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvBriefingSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="You have 3 classes today and 2 high-priority tasks due soon. Let's make today count!"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+
+            <!-- Gamification Streak & Level Chips Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvStreakBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_yellow"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:text="🔥 4-Day Streak"
+                    android:textColor="#1F1A38"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvLevelBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_pill_lime"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:text="⚡ Level 2 • Prodigy"
+                    android:textColor="#1F1A38"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvXpBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_pill_pink"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:text="💎 450 XP"
+                    android:textColor="#1F1A38"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ========================================== -->
+        <!-- 2. DAILY PRODUCTIVITY SCORE CARD           -->
+        <!-- ========================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_neumorphic_card"
+            android:elevation="4dp"
             android:orientation="vertical"
-            android:padding="18dp">
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_pill_neutral"
-                    android:text="AI ACADEMIC BRIEFING"
-                    android:textColor="@color/brand_primary"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <View
                     android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚡ Daily Productivity Score"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvTodayDate"
+                    android:id="@+id/tvProductivityPct"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thursday"
-                    android:textColor="@color/text_muted"
-                    android:textSize="11sp" />
+                    android:text="85%"
+                    android:textColor="@color/electric_violet"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvBriefingSummary"
+            <ProgressBar
+                android:id="@+id/pbProductivityScore"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:progress="85"
+                android:progressTint="@color/electric_violet" />
+
+            <!-- Summary Chips inside Score Card -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:lineSpacingExtra="3dp"
-                android:text="Syncing your academic records, attendance compliance, and schedule..."
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <!-- 1. Attendance Metric -->
+                <LinearLayout
+                    android:id="@+id/cardAttendanceMetric"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_neumorphic_sunken"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginEnd="4dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Attendance"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvAttendancePct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="84%"
+                        android:textColor="@color/status_safe"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvAttendanceStatusBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Safe Margin"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- 2. Tasks Metric -->
+                <LinearLayout
+                    android:id="@+id/cardTasksMetric"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_neumorphic_sunken"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginHorizontal="2dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Deadlines"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvPendingTasksCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="3 Due"
+                        android:textColor="@color/hot_coral"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTasksAlert"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="High Priority"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- 3. Marks / Focus Metric -->
+                <LinearLayout
+                    android:id="@+id/cardMarksMetric"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_neumorphic_sunken"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginStart="4dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Academics"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvMarksAverage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="8.6 GPA"
+                        android:textColor="@color/cobalt_blue"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTotalAssessments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Top 10%"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- 4 Key Metrics (2x2 Neumorphic Grid) -->
+        <!-- ========================================== -->
+        <!-- 3. FAST ACTION MODULES (DOPAMINE GRID)    -->
+        <!-- ========================================== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="🚀 Student Life Modules"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
+
+        <!-- Row 1: Planner, Study Zone, Timetable, Dost AI -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="4">
 
-            <!-- 1. Attendance Metric -->
+            <!-- 1. Planner & Tasks -->
             <LinearLayout
-                android:id="@+id/cardAttendanceMetric"
+                android:id="@+id/btnQuickPlanner"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:background="@drawable/bg_neumorphic_card"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_neumorphic_btn"
                 android:clickable="true"
                 android:focusable="true"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_tasks"
+                    app:tint="@color/electric_violet" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ATTENDANCE"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAttendancePct"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="100%"
-                    android:textColor="@color/status_safe"
-                    android:textSize="28sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAttendanceStatusBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_pill_safe"
-                    android:text="Safe"
-                    android:textColor="@color/status_safe"
-                    android:textSize="11sp" />
-            </LinearLayout>
-
-            <!-- 2. Marks Average Metric -->
-            <LinearLayout
-                android:id="@+id/cardMarksMetric"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_neumorphic_card"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="MARKS AVERAGE"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvMarksAverage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="85.4%"
-                    android:textColor="@color/brand_primary"
-                    android:textSize="28sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvTotalAssessments"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0 assessments logged"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <!-- 3. Tasks Metric -->
-            <LinearLayout
-                android:id="@+id/cardTasksMetric"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:background="@drawable/bg_neumorphic_card"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PENDING TASKS"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvPendingTasksCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0"
+                    android:text="Planner"
                     android:textColor="@color/text_primary"
-                    android:textSize="28sp"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 2. Study Zone (Pomodoro) -->
+            <LinearLayout
+                android:id="@+id/btnQuickStudyTimer"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_neumorphic_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_study"
+                    app:tint="@color/cobalt_blue" />
 
                 <TextView
-                    android:id="@+id/tvTasksAlert"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="All coursework clear"
-                    android:textColor="@color/text_muted"
-                    android:textSize="11sp" />
+                    android:text="Study Zone"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 4. Today's Classes Metric -->
+            <!-- 3. Timetable -->
             <LinearLayout
                 android:id="@+id/cardTimetableMetric"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_neumorphic_card"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_neumorphic_btn"
                 android:clickable="true"
                 android:focusable="true"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center"
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CLASSES TODAY"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_timetable"
+                    app:tint="#D49A00" />
 
                 <TextView
                     android:id="@+id/tvClassesTodayCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="0"
-                    android:textColor="@color/brand_secondary"
-                    android:textSize="28sp"
+                    android:text="Timetable"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
 
@@ -292,345 +451,423 @@
                     android:id="@+id/tvClassesNextSummary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="No classes today"
-                    android:textColor="@color/text_muted"
-                    android:textSize="11sp" />
+                    android:visibility="gone" />
             </LinearLayout>
-        </LinearLayout>
 
-        <!-- Quick Action Shortcuts (Neumorphic Buttons) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="Quick Actions"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold" />
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:scrollbars="none">
-
+            <!-- 4. Dost AI Tutor -->
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <!-- 1. Pomodoro Focus Timer -->
-                <LinearLayout
-                    android:id="@+id/btnQuickStudyTimer"
-                    android:layout_width="104dp"
-                    android:layout_height="84dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/bg_neumorphic_btn"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_study"
-                        app:tint="@color/brand_primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Study Timer"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- 2. AI Tutor Assistant -->
-                <LinearLayout
-                    android:id="@+id/btnQuickAIChat"
-                    android:layout_width="104dp"
-                    android:layout_height="84dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/bg_neumorphic_btn"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_bot"
-                        app:tint="@color/brand_primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="AI Tutor"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- 3. Marks Analytics -->
-                <LinearLayout
-                    android:id="@+id/btnQuickMarks"
-                    android:layout_width="104dp"
-                    android:layout_height="84dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/bg_neumorphic_btn"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_marks"
-                        app:tint="@color/brand_primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Marks Hub"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- 4. Document Vault -->
-                <LinearLayout
-                    android:id="@+id/btnQuickVault"
-                    android:layout_width="104dp"
-                    android:layout_height="84dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/bg_neumorphic_btn"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_documents"
-                        app:tint="@color/brand_primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Vault"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- 5. Search Hub -->
-                <LinearLayout
-                    android:id="@+id/btnQuickSearch"
-                    android:layout_width="104dp"
-                    android:layout_height="84dp"
-                    android:background="@drawable/bg_neumorphic_btn"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_search"
-                        app:tint="@color/brand_primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Search"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-        </HorizontalScrollView>
-
-        <!-- Quick Attendance Logger (One-Tap Attendance Logging) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quick Attendance"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold" />
-
-            <View
+                android:id="@+id/btnQuickAIChat"
                 android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_neumorphic_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/btnViewAllAttendance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="View Ledger →"
-                android:textColor="@color/brand_primary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_bot"
+                    app:tint="@color/electric_violet" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Dost (AI)"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- Row 2: Finance Wallet, Wellness, Document Vault, Global Search -->
         <LinearLayout
-            android:id="@+id/layoutQuickAttendanceList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:orientation="vertical" />
+            android:orientation="horizontal"
+            android:weightSum="4">
 
-        <TextView
-            android:id="@+id/tvEmptyAttendance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/bg_neumorphic_card"
-            android:padding="16dp"
-            android:text="No courses registered yet. Add subjects in Attendance to track compliance."
-            android:textColor="@color/text_muted"
-            android:textSize="12sp"
+            <!-- 5. Student Wallet / Finance -->
+            <LinearLayout
+                android:id="@+id/btnQuickFinance"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_neumorphic_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_wallet"
+                    app:tint="@color/hot_coral" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Wallet"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 6. Student Wellness -->
+            <LinearLayout
+                android:id="@+id/btnQuickWellness"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_neumorphic_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_wellness"
+                    app:tint="#05C482" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Wellness"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 7. Smart Notes & Vault -->
+            <LinearLayout
+                android:id="@+id/btnQuickVault"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_neumorphic_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_documents"
+                    app:tint="@color/soft_pink" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Vault"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 8. Marks Analytics -->
+            <LinearLayout
+                android:id="@+id/btnQuickMarks"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_neumorphic_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_marks"
+                    app:tint="@color/electric_cyan" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Marks"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Hidden Compatibility button for Search -->
+        <View
+            android:id="@+id/btnQuickSearch"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:visibility="gone" />
 
-        <!-- Today's Timetable Section -->
+        <!-- ========================================== -->
+        <!-- 4. DAILY HABIT & WATER TRACKER CARD        -->
+        <!-- ========================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_neumorphic_card"
+            android:elevation="4dp"
+            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:padding="16dp">
 
             <TextView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_neumorphic_circle_idle"
+                android:gravity="center"
+                android:text="💧"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Daily Hydration Goal"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvWaterCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="5 / 8 Glasses completed • +15 XP per glass"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnAddWaterGlass"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Today's Schedule"
+                android:background="@drawable/bg_pill_lime"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="+ Drink"
+                android:textColor="#1F1A38"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <!-- ========================================== -->
+        <!-- 5. TODAY'S TIMETABLE SCHEDULE              -->
+        <!-- ========================================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🗓️ Today's Classes"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/btnViewAllTimetable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Full Schedule →"
-                android:textColor="@color/brand_primary"
+                android:textColor="@color/electric_violet"
                 android:textSize="13sp"
-                android:textStyle="bold" />
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/layoutTodaysClasses"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:orientation="vertical" />
 
         <TextView
             android:id="@+id/tvEmptySchedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_neumorphic_card"
-            android:padding="16dp"
-            android:text="No classes scheduled for today. Relax or focus on self-study!"
-            android:textColor="@color/text_muted"
+            android:elevation="3dp"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="🎉 No lectures scheduled for today! Time to relax or study."
+            android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:visibility="gone" />
 
-        <!-- Urgent / Priority Tasks Section -->
+        <!-- ========================================== -->
+        <!-- 6. HIGH-PRIORITY TASKS & DEADLINES         -->
+        <!-- ========================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Top Priority Tasks"
+                android:layout_weight="1"
+                android:text="⚠️ Urgent Tasks &amp; Exams"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/btnViewAllTasks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All Tasks →"
-                android:textColor="@color/brand_primary"
+                android:text="View All Tasks →"
+                android:textColor="@color/electric_violet"
                 android:textSize="13sp"
-                android:textStyle="bold" />
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/layoutHighPriorityTasks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:orientation="vertical" />
 
         <TextView
             android:id="@+id/tvEmptyTasks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_neumorphic_card"
-            android:padding="16dp"
-            android:text="No pending assignments or exams right now."
-            android:textColor="@color/text_muted"
+            android:elevation="3dp"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="✨ You are all caught up! No urgent assignments pending."
+            android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:visibility="gone" />
 
-        <!-- Dashboard Footer Credits -->
+        <!-- ========================================== -->
+        <!-- 7. ATTENDANCE QUICK SUMMARY (Compatibility)-->
+        <!-- ========================================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📊 Course Attendance Watch"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnViewAllAttendance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Courses →"
+                android:textColor="@color/electric_violet"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutQuickAttendanceList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical" />
+
         <TextView
+            android:id="@+id/tvEmptyAttendance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_neumorphic_card"
+            android:elevation="3dp"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="Tap 'All Courses' to log your classes and monitor compliance."
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <!-- ========================================== -->
+        <!-- 8. DEVELOPER ATTRIBUTION CARD              -->
+        <!-- ========================================== -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
-            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_neumorphic_card"
+            android:elevation="2dp"
             android:gravity="center"
-            android:text="Developed and Managed by Vinay Rathod"
-            android:textColor="@color/text_disabled"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif-medium" />
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Developed and Managed by Vinay Rathod"
+                android:textColor="@color/electric_violet"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -50,11 +51,11 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_chat -> {
-                    navigateTo(AIChatFragment(), "AI Tutor Assistant", "Voice & Text RAG Tutor")
+                    navigateTo(AIChatFragment(), "Dost — AI Tutor", "Multilingual Academic Companion")
                     true
                 }
                 R.id.action_profile -> {
-                    navigateTo(ProfileFragment(), "Student Profile", "Settings & Credentials")
+                    navigateTo(ProfileFragment(), "Student Profile", "Settings & Preferences")
                     true
                 }
                 else -> false
@@ -64,23 +65,23 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_dashboard -> {
-                    navigateTo(DashboardFragment(), "AcademiaLife", "Student Academic Assistant")
-                    true
-                }
-                R.id.navigation_timetable -> {
-                    navigateTo(TimetableFragment(), "Timetable Schedule", "Weekly Lectures & Labs")
+                    navigateTo(DashboardFragment(), "MyBuddy", "Your Student Life Companion")
                     true
                 }
                 R.id.navigation_tasks -> {
                     navigateTo(TasksFragment(), "Tasks & Examinations", "Deadlines & Priority Scoring")
                     true
                 }
-                R.id.navigation_study -> {
-                    navigateTo(StudyPlannerFragment(), "Study Planner & Timer", "Pomodoro Focus & Routines")
+                R.id.navigation_dost -> {
+                    navigateTo(AIChatFragment(), "Dost — AI Tutor", "Multilingual Academic Companion")
                     true
                 }
-                R.id.navigation_attendance -> {
-                    navigateTo(AttendanceFragment(), "Attendance Compliance", "Safety Margins & Safe Misses")
+                R.id.navigation_timetable -> {
+                    navigateTo(TimetableFragment(), "Timetable Schedule", "Weekly Lectures & Labs")
+                    true
+                }
+                R.id.navigation_lifestyle -> {
+                    navigateTo(LifestyleFragment(), "Student Life Zone", "Budget, Wellness & Badges")
                     true
                 }
                 else -> false
@@ -89,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         // Default landing screen: Dashboard
         if (savedInstanceState == null) {
-            navigateTo(DashboardFragment(), "AcademiaLife", "Student Academic Assistant")
+            navigateTo(DashboardFragment(), "MyBuddy", "Your Academic Companion")
         }
     }
 

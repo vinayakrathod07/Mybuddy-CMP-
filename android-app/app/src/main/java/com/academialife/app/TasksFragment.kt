@@ -56,6 +56,9 @@ class TasksFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     val newStatus = if (isCompleted) "completed" else "pending"
                     FirebaseRepository.updateTaskStatus(task.id, newStatus)
+                    if (isCompleted) {
+                        Toast.makeText(context, "🎉 Task completed! +50 XP awarded.", Toast.LENGTH_SHORT).show()
+                    }
                     loadTasks()
                 }
             },

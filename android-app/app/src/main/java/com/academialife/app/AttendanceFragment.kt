@@ -2,7 +2,12 @@ package com.academialife.app
 
 import android.app.AlertDialog
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +16,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -29,8 +35,32 @@ class AttendanceFragment : Fragment() {
     private lateinit var rvSubjects: RecyclerView
     private lateinit var layoutEmpty: LinearLayout
     private lateinit var fabAddSubject: FloatingActionButton
+    private lateinit var btnScanAI: TextView
 
     private lateinit var adapter: AttendanceAdapter
+
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                    ImageDecoder.decodeBitmap(source) { decoder, _, _ -> decoder.isMutableRequired = true }
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+                }
+                processAttendanceBitmap(bitmap)
+            } catch (_: Exception) {
+                Toast.makeText(context, "Could not load selected photo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
+        if (bitmap != null) {
+            processAttendanceBitmap(bitmap)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -45,6 +75,20 @@ class AttendanceFragment : Fragment() {
         rvSubjects = root.findViewById(R.id.rvAttendanceSubjects)
         layoutEmpty = root.findViewById(R.id.layoutEmptyAttendance)
         fabAddSubject = root.findViewById(R.id.fabAddSubject)
+        btnScanAI = root.findViewById(R.id.btnScanAttendanceAI)
+
+        btnScanAI.setOnClickListener {
+            val options = arrayOf("📸 Take Photo of Attendance Sheet", "🖼️ Choose from Gallery")
+            AlertDialog.Builder(requireContext())
+                .setTitle("AI Attendance Scanner")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> cameraLauncher.launch(null)
+                        1 -> galleryLauncher.launch("image/*")
+                    }
+                }
+                .show()
+        }
 
         adapter = AttendanceAdapter(
             emptyList(),
@@ -143,5 +187,47 @@ class AttendanceFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun processAttendanceBitmap(bitmap: Bitmap) {
+        val progressDialog = AlertDialog.Builder(requireContext())
+            .setTitle("🤖 Dost AI Vision")
+            .setMessage("Analyzing attendance records from photo...")
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val results = AIVisionAnalyzer.analyzeAttendancePhoto(bitmap)
+            progressDialog.dismiss()
+
+            if (results.isNotEmpty()) {
+                val preview = results.take(5).joinToString("\n") {
+                    "• ${it.subjectName}: ${it.attended}/${it.total} (${it.percentage}%)"
+                }
+                AlertDialog.Builder(requireContext())
+                    .setTitle("✨ AI Found ${results.size} Subject Records")
+                    .setMessage("Extracted attendance:\n\n$preview\n\nWould you like to register/update these courses?")
+                    .setPositiveButton("Sync All") { _, _ ->
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            for (item in results) {
+                                val subject = FirebaseRepository.addSubject(item.subjectName, item.subjectName.take(4).uppercase(), "Faculty", color = "#7952F2", targetAttendance = 75.0)
+                                for (i in 0 until item.attended) {
+                                    FirebaseRepository.recordAttendance(subject.id, item.subjectName, subject.code, "present")
+                                }
+                                for (i in 0 until (item.total - item.attended)) {
+                                    FirebaseRepository.recordAttendance(subject.id, item.subjectName, subject.code, "absent")
+                                }
+                            }
+                            Toast.makeText(context, "Successfully synced ${results.size} course records!", Toast.LENGTH_LONG).show()
+                            loadAttendanceData()
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } else {
+                Toast.makeText(context, "Could not detect attendance records in the photo. Please check image clarity.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

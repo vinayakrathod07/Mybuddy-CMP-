@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -29,6 +31,17 @@ class DashboardFragment : Fragment() {
     private lateinit var tvTasksAlert: TextView
     private lateinit var tvClassesTodayCount: TextView
     private lateinit var tvClassesNextSummary: TextView
+
+    // Gamification & Productivity
+    private lateinit var tvStreakBadge: TextView
+    private lateinit var tvLevelBadge: TextView
+    private lateinit var tvXpBadge: TextView
+    private lateinit var tvProductivityPct: TextView
+    private lateinit var pbProductivityScore: ProgressBar
+
+    // Water habit
+    private lateinit var tvWaterCount: TextView
+    private lateinit var btnAddWaterGlass: TextView
 
     private lateinit var layoutQuickAttendanceList: LinearLayout
     private lateinit var tvEmptyAttendance: TextView
@@ -57,6 +70,15 @@ class DashboardFragment : Fragment() {
         tvClassesTodayCount = root.findViewById(R.id.tvClassesTodayCount)
         tvClassesNextSummary = root.findViewById(R.id.tvClassesNextSummary)
 
+        tvStreakBadge = root.findViewById(R.id.tvStreakBadge)
+        tvLevelBadge = root.findViewById(R.id.tvLevelBadge)
+        tvXpBadge = root.findViewById(R.id.tvXpBadge)
+        tvProductivityPct = root.findViewById(R.id.tvProductivityPct)
+        pbProductivityScore = root.findViewById(R.id.pbProductivityScore)
+
+        tvWaterCount = root.findViewById(R.id.tvWaterCount)
+        btnAddWaterGlass = root.findViewById(R.id.btnAddWaterGlass)
+
         layoutQuickAttendanceList = root.findViewById(R.id.layoutQuickAttendanceList)
         tvEmptyAttendance = root.findViewById(R.id.tvEmptyAttendance)
 
@@ -70,51 +92,81 @@ class DashboardFragment : Fragment() {
         val mainAct = activity as? MainActivity
 
         root.findViewById<View>(R.id.btnQuickProfile)?.setOnClickListener {
-            mainAct?.navigateTo(ProfileFragment(), "Student Profile & Settings")
+            mainAct?.navigateTo(ProfileFragment(), "Student Profile", "Settings & Preferences")
         }
 
+        // Gamification badges click -> Rewards
+        val openRewardsListener = View.OnClickListener {
+            mainAct?.navigateTo(LifestyleFragment.newInstance("rewards"), "Achievements & Badges")
+        }
+        tvStreakBadge.setOnClickListener(openRewardsListener)
+        tvLevelBadge.setOnClickListener(openRewardsListener)
+        tvXpBadge.setOnClickListener(openRewardsListener)
+
+        // Metrics navigation
         root.findViewById<View>(R.id.cardAttendanceMetric)?.setOnClickListener {
-            mainAct?.navigateTo(AttendanceFragment(), "Attendance Compliance")
+            mainAct?.navigateTo(AttendanceFragment(), "Attendance Compliance", "Safety Margins & Safe Misses")
         }
         root.findViewById<View>(R.id.btnViewAllAttendance)?.setOnClickListener {
-            mainAct?.navigateTo(AttendanceFragment(), "Attendance Compliance")
+            mainAct?.navigateTo(AttendanceFragment(), "Attendance Compliance", "Safety Margins & Safe Misses")
         }
 
         root.findViewById<View>(R.id.cardMarksMetric)?.setOnClickListener {
-            mainAct?.navigateTo(MarksAnalyticsFragment(), "Marks & Analytics")
+            mainAct?.navigateTo(MarksAnalyticsFragment(), "Marks & Analytics", "Performance Insights")
         }
         root.findViewById<View>(R.id.btnQuickMarks)?.setOnClickListener {
-            mainAct?.navigateTo(MarksAnalyticsFragment(), "Marks & Analytics")
+            mainAct?.navigateTo(MarksAnalyticsFragment(), "Marks & Analytics", "Performance Insights")
         }
 
         root.findViewById<View>(R.id.cardTasksMetric)?.setOnClickListener {
-            mainAct?.navigateTo(TasksFragment(), "Tasks & Examinations")
+            mainAct?.navigateTo(TasksFragment(), "Tasks & Examinations", "Deadlines & Priority Scoring")
         }
         root.findViewById<View>(R.id.btnViewAllTasks)?.setOnClickListener {
-            mainAct?.navigateTo(TasksFragment(), "Tasks & Examinations")
+            mainAct?.navigateTo(TasksFragment(), "Tasks & Examinations", "Deadlines & Priority Scoring")
         }
 
         root.findViewById<View>(R.id.cardTimetableMetric)?.setOnClickListener {
-            mainAct?.navigateTo(TimetableFragment(), "Timetable Schedule")
+            mainAct?.navigateTo(TimetableFragment(), "Timetable Schedule", "Weekly Lectures & Labs")
         }
         root.findViewById<View>(R.id.btnViewAllTimetable)?.setOnClickListener {
-            mainAct?.navigateTo(TimetableFragment(), "Timetable Schedule")
+            mainAct?.navigateTo(TimetableFragment(), "Timetable Schedule", "Weekly Lectures & Labs")
+        }
+
+        // Life & Study Zone modules
+        root.findViewById<View>(R.id.btnQuickPlanner)?.setOnClickListener {
+            mainAct?.navigateTo(TasksFragment(), "Tasks & Examinations", "Deadlines & Priority Scoring")
         }
 
         root.findViewById<View>(R.id.btnQuickStudyTimer)?.setOnClickListener {
-            mainAct?.navigateTo(StudyPlannerFragment(), "Study Planner & Timer")
+            mainAct?.navigateTo(StudyPlannerFragment(), "Study Planner & Timer", "Pomodoro & Focus Blocks")
         }
 
         root.findViewById<View>(R.id.btnQuickAIChat)?.setOnClickListener {
-            mainAct?.navigateTo(AIChatFragment(), "AI Tutor Assistant")
+            mainAct?.navigateTo(AIChatFragment(), "Dost — AI Tutor", "Multilingual Academic Companion")
+        }
+
+        root.findViewById<View>(R.id.btnQuickFinance)?.setOnClickListener {
+            mainAct?.navigateTo(LifestyleFragment.newInstance("wallet"), "Student Wallet & Budget")
+        }
+
+        root.findViewById<View>(R.id.btnQuickWellness)?.setOnClickListener {
+            mainAct?.navigateTo(LifestyleFragment.newInstance("wellness"), "Student Wellness & Habits")
         }
 
         root.findViewById<View>(R.id.btnQuickVault)?.setOnClickListener {
-            mainAct?.navigateTo(DocumentVaultFragment(), "Course Document Vault")
+            mainAct?.navigateTo(DocumentVaultFragment(), "Course Document Vault", "Lecture Notes & Cheatsheets")
         }
 
         root.findViewById<View>(R.id.btnQuickSearch)?.setOnClickListener {
-            mainAct?.navigateTo(SearchFragment(), "Search Hub")
+            mainAct?.navigateTo(SearchFragment(), "Search Hub", "Instant Academic Lookup")
+        }
+
+        // Water drink action
+        btnAddWaterGlass.setOnClickListener {
+            val newGlasses = FirebaseRepository.incrementWater()
+            tvWaterCount.text = "$newGlasses / 8 Glasses completed • +15 XP per glass"
+            Toast.makeText(context, "💧 Stay hydrated! +15 XP awarded ($newGlasses/8 glasses)", Toast.LENGTH_SHORT).show()
+            loadDashboardData()
         }
 
         loadDashboardData()
@@ -134,15 +186,32 @@ class DashboardFragment : Fragment() {
             val subjects = FirebaseRepository.getSubjects()
             val records = FirebaseRepository.getAttendanceRecords()
             val assessments = FirebaseRepository.getAssessments()
+            val gamification = FirebaseRepository.getGamification()
+            val wellness = FirebaseRepository.getTodayWellness()
 
             val attSummary = AcademicCalculators.computeAttendanceSummary(subjects, records, profile.minimumAttendanceTarget)
 
-            // 1. Profile header
-            tvWelcomeName.text = "Welcome, ${profile.fullName} 👋"
+            // 1. Profile header & Time-based Greeting
+            val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+            val greeting = when (currentHour) {
+                in 5..11 -> "Good Morning, ${profile.fullName}! ☀️"
+                in 12..16 -> "Good Afternoon, ${profile.fullName}! ⚡"
+                in 17..21 -> "Good Evening, ${profile.fullName}! 🌙"
+                else -> "Rise and Grind, ${profile.fullName}! 🚀"
+            }
+            tvWelcomeName.text = greeting
             tvAcademicInfo.text = "${profile.college} • ${profile.semester} • ${profile.academicYear}"
 
-            val sdfDay = SimpleDateFormat("EEEE, MMM d", Locale.getDefault())
+            val sdfDay = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
             tvTodayDate.text = sdfDay.format(Date())
+
+            // Gamification chips
+            tvStreakBadge.text = "🔥 ${gamification.streakDays}-Day Streak"
+            tvLevelBadge.text = "⚡ Level ${gamification.level} • ${gamification.levelTitle}"
+            tvXpBadge.text = "💎 ${gamification.xpPoints} XP"
+
+            // Hydration habit
+            tvWaterCount.text = "${wellness.waterGlasses} / 8 Glasses completed • +15 XP per glass"
 
             // 2. Metrics
             tvAttendancePct.text = "${attSummary.overallPercentage}%"
@@ -152,7 +221,7 @@ class DashboardFragment : Fragment() {
                 tvAttendanceStatusBadge.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_warning))
                 tvAttendancePct.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_warning))
             } else {
-                tvAttendanceStatusBadge.text = "Safe"
+                tvAttendanceStatusBadge.text = "Safe Margin"
                 tvAttendanceStatusBadge.setBackgroundResource(R.drawable.bg_pill_safe)
                 tvAttendanceStatusBadge.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_safe))
                 tvAttendancePct.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_safe))
@@ -178,15 +247,24 @@ class DashboardFragment : Fragment() {
                 tvTasksAlert.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
             }
 
+            // Productivity Score Computation (Composite: attendance + tasks completed + water)
+            val completedTasks = tasks.count { it.status == "completed" }
+            val taskScorePart = if (tasks.isNotEmpty()) (completedTasks.toDouble() / tasks.size) * 40.0 else 30.0
+            val attScorePart = (attSummary.overallPercentage / 100.0) * 40.0
+            val habitPart = (wellness.waterGlasses.toDouble() / 8.0) * 20.0
+            val compositeScore = (taskScorePart + attScorePart + habitPart).toInt().coerceIn(10, 100)
+
+            tvProductivityPct.text = "$compositeScore%"
+            pbProductivityScore.progress = compositeScore
+
             // 3. Today's classes
             val todayDayName = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date())
             val todaysClasses = timetable.filter { it.dayOfWeek.equals(todayDayName, ignoreCase = true) }
-            tvClassesTodayCount.text = "${todaysClasses.size}"
+            tvClassesTodayCount.text = "Timetable (${todaysClasses.size})"
             tvClassesNextSummary.text = if (todaysClasses.isNotEmpty()) "Next: ${todaysClasses.first().subjectName}" else "No classes today"
 
             // 4. Daily AI Briefing Text
             val briefing = StringBuilder()
-            briefing.append("Good day, ${profile.fullName}. ")
             if (todaysClasses.isNotEmpty()) {
                 briefing.append("You have ${todaysClasses.size} scheduled class(es) today, starting with ${todaysClasses.first().subjectName} at ${todaysClasses.first().startTime}. ")
             } else {
