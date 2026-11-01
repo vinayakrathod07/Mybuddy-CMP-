@@ -211,6 +211,7 @@
                 android:id="@+id/promptStudyPlan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_neumorphic_chip_idle"
                 android:clickable="true"
                 android:focusable="true"
@@ -218,6 +219,37 @@
                 android:paddingVertical="8dp"
                 android:text="💡 Plan Study Session"
                 android:textColor="@color/text_primary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/promptWater"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_pill_lime"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="💧 Drink Water (+15 XP)"
+                android:textColor="#1F1A38"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/promptStrategy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_yellow"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="⚡ Daily Strategy"
+                android:textColor="#1F1A38"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold" />

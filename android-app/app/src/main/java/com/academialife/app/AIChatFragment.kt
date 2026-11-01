@@ -124,6 +124,14 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
             sendMessage("What study sessions do I have planned or need to schedule?")
         }
 
+        root.findViewById<TextView>(R.id.promptWater)?.setOnClickListener {
+            sendMessage("Log 1 glass of water for me")
+        }
+
+        root.findViewById<TextView>(R.id.promptStrategy)?.setOnClickListener {
+            sendMessage("What is my proactive academic strategy for today?")
+        }
+
         btnSend.setOnClickListener {
             val text = etMessage.text.toString().trim()
             if (text.isNotEmpty()) {

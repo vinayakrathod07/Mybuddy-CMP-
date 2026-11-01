@@ -134,6 +134,8 @@ object FirebaseRepository {
         }
     }
 
+    fun isUserSignedIn(): Boolean = auth.currentUser != null
+
     fun signOut() {
         auth.signOut()
     }
@@ -904,7 +906,72 @@ object FirebaseRepository {
         val todayDay = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date())
         val todaysClasses = timetable.filter { it.dayOfWeek.equals(todayDay, ignoreCase = true) }
 
-        if (isTimetableQuery) {
+        val isWaterCommand = queryLower.contains("water") || queryLower.contains("pani") || queryLower.contains("पानी") || queryLower.contains("ನೀರು") || queryLower.contains("నీరు") || queryLower.contains("agua")
+        val isAddTaskCommand = queryLower.startsWith("add task ") || queryLower.startsWith("create task ") || queryLower.startsWith("new task ")
+        val isProgressQuery = queryLower.contains("progress") || queryLower.contains("streak") || queryLower.contains("xp") || queryLower.contains("level") || queryLower.contains("badge") || queryLower.contains("rank")
+        val isStrategyQuery = queryLower.contains("advice") || queryLower.contains("strategy") || queryLower.contains("what should i do") || queryLower.contains("suggest") || queryLower.contains("tips") || queryLower.contains("रणनीति") || queryLower.contains("सलाह")
+        val isDeadlockQuery = queryLower.contains("deadlock")
+        val isNormalizationQuery = queryLower.contains("normalization") || queryLower.contains("bcnf") || queryLower.contains("normal form")
+        val isStudyTipsQuery = queryLower.contains("study tip") || queryLower.contains("how to study") || queryLower.contains("feynman") || queryLower.contains("active recall")
+
+        if (isWaterCommand) {
+            val newGlasses = incrementWater()
+            answer = "💧 Done, Dost! I've logged 1 glass of water for you. Total today: $newGlasses / 8 glasses (+15 XP awarded)!\n\nStaying hydrated boosts mental focus by up to 20% during study sessions."
+            sourceText = "Action: Hydration Tracker"
+        } else if (isAddTaskCommand) {
+            val taskTitle = userQuery.substringAfter("task").trim().ifEmpty { "New Coursework Assignment" }
+            val sdfDue = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(System.currentTimeMillis() + 2 * 86400000L))
+            val newTask = Task(
+                title = taskTitle,
+                dueDate = sdfDue,
+                taskType = "assignment",
+                priorityScore = 75.0,
+                priorityReason = "Added via Dost AI Assistant",
+                status = "pending"
+            )
+            addTask(newTask)
+            addXP(25, "Added task via Dost AI")
+            answer = "🎯 Task added, Dost!\n\n• Title: '$taskTitle'\n• Due Date: $sdfDue\n• Smart Priority Score: 75 pts\n\n+25 XP added to your streak! You can view it in the Planner tab."
+            sourceText = "Action: Planner Task Added"
+        } else if (isProgressQuery) {
+            val g = getGamification()
+            val w = getTodayWellness()
+            answer = "⚡ Here is your real-time MyBuddy progress, Dost:\n\n" +
+                    "• Current Rank: Level ${g.level} • ${g.levelTitle} 🚀\n" +
+                    "• XP Points: ${g.xpPoints} XP (${g.level * 400 - g.xpPoints} XP to next level)\n" +
+                    "• Study Streak: 🔥 ${g.streakDays} Days\n" +
+                    "• Hydration: 💧 ${w.waterGlasses}/8 glasses\n" +
+                    "• Unlocked Badges: ${g.unlockedBadges.joinToString(", ")}"
+            sourceText = "Source: Gamification & Profile Ledger"
+        } else if (isStrategyQuery) {
+            val insight = StudentAIEngine.runProactiveAnalysis()
+            answer = "${insight.title}\n\n${insight.message}\n\n💡 Recommended Action: Tap '${insight.suggestedAction}' in the app to execute today's target!"
+            sourceText = "Source: Student AI Proactive Engine"
+        } else if (isDeadlockQuery) {
+            answer = "📚 Operating Systems — Deadlock Concept:\n\n" +
+                    "A deadlock happens when processes are permanently blocked waiting for resources held by each other.\n\n" +
+                    "4 Necessary Coffman Conditions:\n" +
+                    "1. Mutual Exclusion (non-shareable resources)\n" +
+                    "2. Hold & Wait (holding 1 resource while requesting another)\n" +
+                    "3. No Preemption (resources cannot be forcibly taken)\n" +
+                    "4. Circular Wait (P1 waiting for P2, P2 for P3... Pn for P1)\n\n" +
+                    "💡 Solution: Use Banker's Algorithm (Safe state check) or resource ordering to break circular wait!"
+            sourceText = "Subject: Operating Systems Tutoring"
+        } else if (isNormalizationQuery) {
+            answer = "📚 DBMS — Normalization Quick Summary:\n\n" +
+                    "• 1NF: All attribute values must be atomic (no multi-valued/composite attributes).\n" +
+                    "• 2NF: Must be in 1NF + No partial dependencies (every non-prime attribute fully depends on Candidate Key).\n" +
+                    "• 3NF: Must be in 2NF + No transitive dependencies (if X -> Y, X must be superkey or Y must be prime).\n" +
+                    "• BCNF: Stricter than 3NF. For every functional dependency X -> Y, X MUST be a Super Key!"
+            sourceText = "Subject: Database Management Systems"
+        } else if (isStudyTipsQuery) {
+            answer = "🚀 Top Student Study Strategies:\n\n" +
+                    "1. Active Recall: Test yourself with flashcards or question prompts instead of passive re-reading.\n" +
+                    "2. Feynman Technique: Explain the concept simply in plain words as if teaching a beginner. Wherever you get stuck, re-read that part.\n" +
+                    "3. 25/5 Pomodoro: 25 minutes of 100% phone-free focus followed by a 5-minute break.\n" +
+                    "4. Spaced Repetition: Review notes at day 1, day 3, day 7, and day 14 to lock information into long-term memory."
+            sourceText = "Dost Academic Advice"
+        } else if (isTimetableQuery) {
             when (language) {
                 "Hindi" -> {
                     answer = if (todaysClasses.isNotEmpty()) {

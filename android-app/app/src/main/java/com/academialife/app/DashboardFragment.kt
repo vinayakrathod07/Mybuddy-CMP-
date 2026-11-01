@@ -43,6 +43,12 @@ class DashboardFragment : Fragment() {
     private lateinit var tvWaterCount: TextView
     private lateinit var btnAddWaterGlass: TextView
 
+    // AI Proactive Strategy
+    private lateinit var tvAIInsightTitle: TextView
+    private lateinit var tvAIInsightMessage: TextView
+    private lateinit var btnAIInsightAction: TextView
+    private lateinit var btnAskDostAI: TextView
+
     private lateinit var layoutQuickAttendanceList: LinearLayout
     private lateinit var tvEmptyAttendance: TextView
 
@@ -78,6 +84,11 @@ class DashboardFragment : Fragment() {
 
         tvWaterCount = root.findViewById(R.id.tvWaterCount)
         btnAddWaterGlass = root.findViewById(R.id.btnAddWaterGlass)
+
+        tvAIInsightTitle = root.findViewById(R.id.tvAIInsightTitle)
+        tvAIInsightMessage = root.findViewById(R.id.tvAIInsightMessage)
+        btnAIInsightAction = root.findViewById(R.id.btnAIInsightAction)
+        btnAskDostAI = root.findViewById(R.id.btnAskDostAI)
 
         layoutQuickAttendanceList = root.findViewById(R.id.layoutQuickAttendanceList)
         tvEmptyAttendance = root.findViewById(R.id.tvEmptyAttendance)
@@ -159,6 +170,10 @@ class DashboardFragment : Fragment() {
 
         root.findViewById<View>(R.id.btnQuickSearch)?.setOnClickListener {
             mainAct?.navigateTo(SearchFragment(), "Search Hub", "Instant Academic Lookup")
+        }
+
+        btnAskDostAI.setOnClickListener {
+            mainAct?.navigateTo(AIChatFragment(), "Dost — AI Tutor", "Multilingual Academic Companion")
         }
 
         // Water drink action
@@ -282,6 +297,24 @@ class DashboardFragment : Fragment() {
                 briefing.append("Your coursework is currently complete!")
             }
             tvBriefingSummary.text = briefing.toString()
+
+            // 4.5 Live Proactive AI Strategy Analysis
+            val mainAct = activity as? MainActivity
+            val insight = StudentAIEngine.runProactiveAnalysis()
+            tvAIInsightTitle.text = insight.title
+            tvAIInsightMessage.text = insight.message
+            btnAIInsightAction.text = "⚡ ${insight.suggestedAction} (+25 XP)"
+            btnAIInsightAction.setOnClickListener {
+                FirebaseRepository.addXP(25, "Executed AI Strategy")
+                Toast.makeText(context, "⚡ Action executed! +25 XP awarded.", Toast.LENGTH_SHORT).show()
+                when (insight.actionTarget) {
+                    "attendance" -> mainAct?.navigateTo(AttendanceFragment(), "Attendance Compliance", "Safety Margins & Safe Misses")
+                    "tasks" -> mainAct?.navigateTo(TasksFragment(), "Tasks & Examinations", "Deadlines & Priority Scoring")
+                    "study" -> mainAct?.navigateTo(StudyPlannerFragment(), "Study Planner & Timer", "Pomodoro & Focus Blocks")
+                    "wellness" -> mainAct?.navigateTo(LifestyleFragment.newInstance("wellness"), "Student Wellness & Habits")
+                    else -> mainAct?.navigateTo(TimetableFragment(), "Timetable Schedule", "Weekly Lectures & Labs")
+                }
+            }
 
             // 5. Populate Quick Attendance Logger
             layoutQuickAttendanceList.removeAllViews()

@@ -241,3 +241,13 @@ data class StudentNote(
     val colorHex: String = "#7952F2",
     val updatedAt: String = ""
 )
+
+data class AIProactiveInsight(
+    val title: String = "⚡ Dost's Real-time Strategy",
+    val message: String = "Coursework on track. Let's make today count!",
+    val urgentCount: Int = 0,
+    val attendanceWarningSubject: String = "",
+    val suggestedAction: String = "Start Study Session",
+    val actionTarget: String = "study", // timetable, tasks, attendance, study, wellness
+    val timestamp: Long = System.currentTimeMillis()
+)

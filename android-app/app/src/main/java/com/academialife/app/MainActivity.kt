@@ -35,9 +35,10 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Initialize Firebase Anonymous/Auth in background
+        // Initialize Firebase Auth & Active Student AI Engine in background
         lifecycleScope.launch {
             FirebaseRepository.ensureAuthenticated()
+            StudentAIEngine.runProactiveAnalysis()
         }
 
         topAppBar.setOnMenuItemClickListener { menuItem ->
