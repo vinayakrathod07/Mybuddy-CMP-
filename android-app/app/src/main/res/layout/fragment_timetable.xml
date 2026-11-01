@@ -42,21 +42,46 @@
                     android:textSize="13sp" />
             </LinearLayout>
 
-            <!-- AI Photo Scan Button -->
-            <TextView
-                android:id="@+id/btnScanTimetableAI"
+            <!-- Action Buttons: Clear All & Scan (AI) -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_neumorphic_chip_idle"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="9dp"
-                android:text="📷 Scan (AI)"
-                android:textColor="@color/lavender_primary"
-                android:textSize="12sp"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Clear All Button -->
+                <TextView
+                    android:id="@+id/btnClearTimetable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_neumorphic_chip_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="9dp"
+                    android:text="🗑️ Clear All"
+                    android:textColor="@color/status_critical"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+
+                <!-- AI Photo Scan Button -->
+                <TextView
+                    android:id="@+id/btnScanTimetableAI"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_neumorphic_chip_idle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="9dp"
+                    android:text="📷 Scan (AI)"
+                    android:textColor="@color/brand_primary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <View

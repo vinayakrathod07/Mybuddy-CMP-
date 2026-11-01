@@ -327,6 +327,42 @@ object FirebaseRepository {
         }
     }
 
+    suspend fun clearAllTimetable(): Boolean {
+        val uid = getCurrentUserId()
+        return try {
+            val coll = firestore.collection("users").document(uid).collection("timetable")
+            val snap = coll.get().await()
+            if (snap.isEmpty) return true
+            val batch = firestore.batch()
+            snap.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("FirebaseRepository", "clearAllTimetable failed: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun clearDayTimetable(dayOfWeek: String): Boolean {
+        val uid = getCurrentUserId()
+        return try {
+            val coll = firestore.collection("users").document(uid).collection("timetable")
+            val snap = coll.whereEqualTo("dayOfWeek", dayOfWeek).get().await()
+            if (snap.isEmpty) return true
+            val batch = firestore.batch()
+            snap.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("FirebaseRepository", "clearDayTimetable failed: ${e.message}")
+            false
+        }
+    }
+
     // ==========================================
     // 4. TASKS & EXAMS
     // ==========================================

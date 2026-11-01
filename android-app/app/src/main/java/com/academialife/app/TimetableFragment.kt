@@ -32,6 +32,7 @@ class TimetableFragment : Fragment() {
     private lateinit var layoutEmpty: LinearLayout
     private lateinit var fabAdd: FloatingActionButton
     private lateinit var btnScanAI: TextView
+    private lateinit var btnClearAll: TextView
     private lateinit var adapter: TimetableAdapter
 
     private var allEntries: List<TimetableEntry> = emptyList()
@@ -70,6 +71,11 @@ class TimetableFragment : Fragment() {
         layoutEmpty = root.findViewById(R.id.layoutEmptyTimetable)
         fabAdd = root.findViewById(R.id.fabAddClass)
         btnScanAI = root.findViewById(R.id.btnScanTimetableAI)
+        btnClearAll = root.findViewById(R.id.btnClearTimetable)
+
+        btnClearAll.setOnClickListener {
+            handleClearTimetable()
+        }
 
         btnScanAI.setOnClickListener {
             val options = arrayOf("📸 Take Photo of Timetable", "🖼️ Choose from Gallery")
@@ -141,6 +147,73 @@ class TimetableFragment : Fragment() {
             allEntries = FirebaseRepository.getTimetable()
             filterList()
         }
+    }
+
+    private fun handleClearTimetable() {
+        if (allEntries.isEmpty()) {
+            Toast.makeText(context, "Timetable is already empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedDay != "All") {
+            val dayEntries = allEntries.filter { it.dayOfWeek.equals(selectedDay, ignoreCase = true) }
+            val options = arrayOf(
+                "Clear classes on $selectedDay only (${dayEntries.size} classes)",
+                "Clear entire weekly timetable (${allEntries.size} classes)"
+            )
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Clear Timetable")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> confirmAndClearDay(selectedDay)
+                        1 -> confirmAndClearAll()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        } else {
+            confirmAndClearAll()
+        }
+    }
+
+    private fun confirmAndClearAll() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Clear Entire Timetable?")
+            .setMessage("Are you sure you want to delete all ${allEntries.size} scheduled classes across the entire week? This cannot be undone.")
+            .setPositiveButton("Clear All") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val success = FirebaseRepository.clearAllTimetable()
+                    if (success) {
+                        Toast.makeText(context, "Weekly timetable cleared", Toast.LENGTH_SHORT).show()
+                        loadTimetable()
+                    } else {
+                        Toast.makeText(context, "Failed to clear timetable", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun confirmAndClearDay(day: String) {
+        val dayCount = allEntries.count { it.dayOfWeek.equals(day, ignoreCase = true) }
+        AlertDialog.Builder(requireContext())
+            .setTitle("Clear $day Schedule?")
+            .setMessage("Are you sure you want to delete all $dayCount classes on $day?")
+            .setPositiveButton("Clear $day") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val success = FirebaseRepository.clearDayTimetable(day)
+                    if (success) {
+                        Toast.makeText(context, "$day schedule cleared", Toast.LENGTH_SHORT).show()
+                        loadTimetable()
+                    } else {
+                        Toast.makeText(context, "Failed to clear $day schedule", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun filterList() {
