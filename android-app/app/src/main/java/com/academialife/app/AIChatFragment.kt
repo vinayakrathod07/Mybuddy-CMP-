@@ -99,7 +99,7 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
         tts = TextToSpeech(requireContext(), this)
 
         adapter = ChatAdapter(messagesList) { textToSpeak ->
-            tts?.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null, "MyBuddyTTS")
+            speakTextFriendly(textToSpeak)
         }
 
         rvMessages.layoutManager = LinearLayoutManager(context).apply {
@@ -203,11 +203,37 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
             "Tamil" -> Locale("ta", "IN")
             "Marathi" -> Locale("mr", "IN")
             "Spanish" -> Locale("es", "ES")
-            else -> Locale.ENGLISH
+            else -> Locale("en", "IN")
         }
         val result = tts?.setLanguage(targetLocale)
         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
             tts?.language = Locale.ENGLISH
+        }
+        tts?.setPitch(1.12f)
+        tts?.setSpeechRate(1.05f)
+    }
+
+    private fun speakTextFriendly(text: String) {
+        try {
+            val audioManager = context?.getSystemService(android.content.Context.AUDIO_SERVICE) as? android.media.AudioManager
+            val maxVol = audioManager?.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC) ?: 15
+            val currentVol = audioManager?.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) ?: 0
+            if (currentVol < (maxVol * 0.75).toInt()) {
+                audioManager?.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, (maxVol * 0.85).toInt(), 0)
+            }
+
+            // Remove markdown characters for natural, fluent voice output
+            val cleanText = text
+                .replace(Regex("[•*#_`~>|\\[\\]()]"), " ")
+                .replace(Regex("\\s+"), " ")
+                .trim()
+
+            val params = Bundle().apply {
+                putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            }
+            tts?.speak(cleanText, TextToSpeech.QUEUE_FLUSH, params, "MyBuddyTTS")
+        } catch (_: Exception) {
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "MyBuddyTTS")
         }
     }
 
@@ -346,6 +372,8 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
+            tts?.setPitch(1.12f)
+            tts?.setSpeechRate(1.05f)
             updateTtsLocale(currentLanguage)
         }
     }

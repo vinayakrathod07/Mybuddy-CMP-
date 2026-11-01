@@ -125,7 +125,22 @@ class SplashActivity : AppCompatActivity() {
 
     private fun playGreetingSound() {
         try {
+            val audioManager = getSystemService(android.content.Context.AUDIO_SERVICE) as? android.media.AudioManager
+            // Ensure media volume is loud and audible for the student greeting
+            val maxVol = audioManager?.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC) ?: 15
+            val currentVol = audioManager?.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) ?: 0
+            if (currentVol < (maxVol * 0.75).toInt()) {
+                audioManager?.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, (maxVol * 0.85).toInt(), 0)
+            }
+
             mediaPlayer = MediaPlayer.create(this, R.raw.kya_haal_hai_dost)
+            mediaPlayer?.setAudioAttributes(
+                android.media.AudioAttributes.Builder()
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .build()
+            )
+            mediaPlayer?.setVolume(1.0f, 1.0f)
             mediaPlayer?.setOnCompletionListener { mp ->
                 mp.release()
                 mediaPlayer = null
