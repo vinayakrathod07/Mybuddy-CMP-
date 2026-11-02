@@ -117,6 +117,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.nav_fade_enter, R.anim.nav_fade_exit)
             .replace(R.id.fragment_container, fragment)
             .commit()
         isNavigating = false

@@ -518,7 +518,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickPlanner"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -527,19 +527,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_tasks"
-                    app:tint="@color/electric_violet" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_violet">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_tasks"
+                        app:tint="@color/electric_violet" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Planner"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -548,7 +555,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickStudyTimer"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="2dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -557,19 +564,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_study"
-                    app:tint="@color/cobalt_blue" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_blue">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_study"
+                        app:tint="@color/cobalt_blue" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Study Zone"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -578,7 +592,7 @@
             <LinearLayout
                 android:id="@+id/cardTimetableMetric"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="2dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -587,20 +601,27 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_timetable"
-                    app:tint="#D49A00" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_yellow">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_timetable"
+                        app:tint="#D49A00" />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/tvClassesTodayCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Timetable"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
 
@@ -615,7 +636,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickAIChat"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -624,19 +645,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_bot"
-                    app:tint="@color/electric_violet" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_teal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_bot"
+                        app:tint="#00BFA5" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Dost (AI)"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -654,7 +682,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickFinance"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -663,19 +691,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_wallet"
-                    app:tint="@color/hot_coral" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_coral">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_wallet"
+                        app:tint="@color/hot_coral" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Wallet"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -684,7 +719,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickWellness"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="2dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -693,19 +728,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_wellness"
-                    app:tint="#05C482" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_lime">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_wellness"
+                        app:tint="#65A30D" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Wellness"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -714,7 +756,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickVault"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="2dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -723,19 +765,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_documents"
-                    app:tint="@color/soft_pink" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_pink">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_documents"
+                        app:tint="@color/soft_pink" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Vault"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -744,7 +793,7 @@
             <LinearLayout
                 android:id="@+id/btnQuickMarks"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="88dp"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 android:background="@drawable/bg_neumorphic_btn"
@@ -753,19 +802,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_marks"
-                    app:tint="@color/electric_cyan" />
+                <FrameLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_squircle_cyan">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_marks"
+                        app:tint="@color/electric_cyan" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="5dp"
                     android:text="Marks"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:textStyle="bold" />
             </LinearLayout>

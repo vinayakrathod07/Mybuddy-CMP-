@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Modern curved roof & home contour -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M11.26,2.44C11.68,2.08 12.32,2.08 12.74,2.44L20.5,9.1C20.82,9.37 21,9.77 21,10.2V19.5C21,20.6 20.1,21.5 19,21.5H15C14.45,21.5 14,21.05 14,20.5V15C14,14.45 13.55,14 13,14H11C10.45,14 10,14.45 10,15V20.5C10,21.05 9.55,21.5 9,21.5H5C3.9,21.5 3,20.6 3,19.5V10.2C3,9.77 3.18,9.37 3.5,9.1L11.26,2.44Z" />
+</vector>
+

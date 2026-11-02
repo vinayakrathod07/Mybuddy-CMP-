@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Subtle outer outline shadow border -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="28dp" />
-            <solid android:color="@color/surface_border" />
+            <corners android:radius="32dp" />
+            <solid android:color="#E6E0F8" />
         </shape>
     </item>
-    <item android:top="1dp" android:bottom="1dp" android:left="1dp" android:right="1dp">
+    <!-- Pristine modern card surface -->
+    <item android:top="1.5dp" android:bottom="1.5dp" android:left="1.5dp" android:right="1.5dp">
         <shape android:shape="rectangle">
-            <corners android:radius="27dp" />
+            <corners android:radius="30.5dp" />
             <solid android:color="@color/surface_light" />
         </shape>
     </item>

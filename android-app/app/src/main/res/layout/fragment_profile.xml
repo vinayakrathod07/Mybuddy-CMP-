@@ -380,61 +380,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- AI Tutor & Gemini Engine Card -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/bg_neumorphic_card"
-            android:elevation="4dp"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🤖 Dost AI &amp; Cloud LLM Engine"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Configure Google Gemini Cloud API key for deep reasoning, or use the integrated on-device Academic Engine."
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-
-            <EditText
-                android:id="@+id/etGeminiApiKey"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_neumorphic_sunken"
-                android:hint="Paste Gemini API Key (Optional)"
-                android:inputType="textPassword"
-                android:paddingHorizontal="14dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_disabled"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/btnSaveGeminiKey"
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_pill_lime"
-                android:gravity="center"
-                android:text="Save AI Configuration"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
-
         <!-- Developer Credits Card -->
         <LinearLayout
             android:layout_width="match_parent"

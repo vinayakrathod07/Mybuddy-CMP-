@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Modern rounded task sheet with dynamic checkmark -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M18,3H16V2C16,1.45 15.55,1 15,1C14.45,1 14,1.45 14,2V3H10V2C10,1.45 9.55,1 9,1C8.45,1 8,1.45 8,2V3H6C4.34,3 3,4.34 3,6V19C3,20.66 4.34,22 6,22H18C19.66,22 21,20.66 21,19V6C21,4.34 19.66,3 18,3ZM18,20H6C5.45,20 5,19.55 5,19V8H19V19C19,19.55 18.55,20 18,20ZM10.2,16.6L7.4,13.8C7.01,13.41 7.01,12.78 7.4,12.39C7.79,12 8.42,12 8.81,12.39L10.9,14.48L15.19,10.19C15.58,9.8 16.21,9.8 16.6,10.19C16.99,10.58 16.99,11.21 16.6,11.6L11.6,16.6C11.21,16.99 10.59,16.99 10.2,16.6Z" />
+</vector>
+

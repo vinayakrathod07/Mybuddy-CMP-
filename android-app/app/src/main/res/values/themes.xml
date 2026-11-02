@@ -36,9 +36,21 @@
     </style>
 
     <style name="Widget.MyBuddy.BottomNav.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">#267952F2</item>
-        <item name="android:width">60dp</item>
+        <item name="android:color">#267027F5</item>
+        <item name="android:width">58dp</item>
         <item name="android:height">32dp</item>
         <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="TextAppearance.MyBuddy.BottomNav.Active" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.MyBuddy.BottomNav.Inactive" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="fontFamily">sans-serif</item>
     </style>
 </resources>
