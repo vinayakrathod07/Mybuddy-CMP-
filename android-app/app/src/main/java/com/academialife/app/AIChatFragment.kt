@@ -431,7 +431,7 @@ class AIChatFragment : Fragment(), TextToSpeech.OnInitListener {
         etMessage.setText("")
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val reply = FirebaseRepository.answerQuestion(queryText, currentLanguage)
+            val reply = DostAIEngine.queryDost(requireContext(), queryText, currentLanguage, messagesList)
             messagesList.add(reply)
             adapter.notifyItemInserted(messagesList.size - 1)
             rvMessages.smoothScrollToPosition(messagesList.size - 1)

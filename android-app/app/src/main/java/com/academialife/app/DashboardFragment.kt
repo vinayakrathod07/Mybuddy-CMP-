@@ -227,7 +227,11 @@ class DashboardFragment : Fragment() {
                 else -> "Rise and Grind, ${profile.fullName}! 🚀"
             }
             tvWelcomeName.text = greeting
-            tvAcademicInfo.text = "${profile.college} • ${profile.semester} • ${profile.academicYear}"
+            val academicDetails = listOf(profile.college, profile.semester, profile.academicYear)
+                .filter { it.isNotBlank() }
+                .joinToString(" • ")
+                .ifEmpty { "Student Companion • 2026-2027" }
+            tvAcademicInfo.text = academicDetails
 
             val sdfDay = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
             tvTodayDate.text = sdfDay.format(Date())

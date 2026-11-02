@@ -18,6 +18,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -84,8 +89,7 @@ class LoginActivity : AppCompatActivity() {
         // Check if user is already authenticated
         val forceShow = intent.getBooleanExtra("FORCE_SHOW", false)
         if (!forceShow && FirebaseRepository.isUserLoggedIn()) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            checkOnboardingAndProceed()
             return
         }
 
@@ -211,39 +215,40 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnGuest.setOnClickListener {
-            Toast.makeText(this, "Continuing as Guest Student", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            clearBanners()
+            setLoading(true)
+            lifecycleScope.launch {
+                val (ok, errorMsg) = FirebaseRepository.signInGuest()
+                setLoading(false)
+                if (ok) {
+                    Toast.makeText(this@LoginActivity, "Continuing as Guest Student", Toast.LENGTH_SHORT).show()
+                    checkOnboardingAndProceed()
+                } else {
+                    showError(errorMsg ?: "Guest sign-in failed. Please try again.")
+                }
+            }
         }
     }
 
     private fun handleGoogleAccount(account: GoogleSignInAccount) {
         val idToken = account.idToken
-        val email = account.email.orEmpty()
         val displayName = account.displayName ?: "Student"
 
         setLoading(true)
         lifecycleScope.launch {
             if (!idToken.isNullOrEmpty()) {
-                val (ok, _) = FirebaseRepository.signInWithGoogleCredential(idToken)
+                val (ok, errorMsg) = FirebaseRepository.signInWithGoogleCredential(idToken)
+                setLoading(false)
                 if (ok) {
-                    setLoading(false)
                     Toast.makeText(this@LoginActivity, "Welcome to MyBuddy, $displayName!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                    finish()
+                    checkOnboardingAndProceed()
                     return@launch
+                } else {
+                    showError(formatFirebaseError(errorMsg))
                 }
-            }
-
-            // Seamless authentication with student's verified Google account
-            val ok = FirebaseRepository.loginOrRegisterGoogleUser(email, displayName, account.id.orEmpty())
-            setLoading(false)
-            if (ok) {
-                Toast.makeText(this@LoginActivity, "Welcome to MyBuddy, $displayName!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                finish()
             } else {
-                showError("Unable to sign in with Google right now. Please enter your email or continue as Guest.")
+                setLoading(false)
+                showError("Unable to obtain Google sign-in token. Please sign in with email or continue as Guest.")
             }
         }
     }
@@ -396,8 +401,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                     setLoading(false)
                     Toast.makeText(this@LoginActivity, "Welcome to MyBuddy, $fullName!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                    finish()
+                    checkOnboardingAndProceed()
                 } else {
                     setLoading(false)
                     showError(formatFirebaseError(errorMsg))
@@ -412,8 +416,7 @@ class LoginActivity : AppCompatActivity() {
                 setLoading(false)
                 if (ok) {
                     Toast.makeText(this@LoginActivity, "Signed in successfully!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                    finish()
+                    checkOnboardingAndProceed()
                 } else {
                     showError(formatFirebaseError(errorMsg))
                 }
@@ -457,6 +460,8 @@ class LoginActivity : AppCompatActivity() {
         val pbAuth = dialogView.findViewById<ProgressBar>(R.id.pbPhoneAuth)
 
         var otpSent = false
+        var storedVerificationId: String? = null
+        var resendToken: PhoneAuthProvider.ForceResendingToken? = null
 
         btnAction.setOnClickListener {
             val phone = etPhone.text.toString().trim()
@@ -468,16 +473,77 @@ class LoginActivity : AppCompatActivity() {
                     tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
                     return@setOnClickListener
                 }
-                otpSent = true
-                layoutOtp.visibility = View.VISIBLE
-                etOtp.setText("741258") // Pre-filled default OTP verification
-                btnAction.text = "Verify & Continue"
-                tvBanner.text = "OTP sent to +91 $phone! Enter code or token to proceed."
+
+                pbAuth.visibility = View.VISIBLE
+                btnAction.visibility = View.INVISIBLE
+                tvBanner.text = "Sending SMS verification code to +91 $phone..."
                 tvBanner.setBackgroundResource(R.drawable.bg_pill_lime)
+
+                val fullPhone = "+91$phone"
+                val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                    override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                        pbAuth.visibility = View.GONE
+                        btnAction.visibility = View.VISIBLE
+                        lifecycleScope.launch {
+                            val (ok, err) = FirebaseRepository.signInWithPhoneCredential(credential, name)
+                            if (ok) {
+                                dialog.dismiss()
+                                Toast.makeText(this@LoginActivity, "Mobile verified successfully!", Toast.LENGTH_SHORT).show()
+                                checkOnboardingAndProceed()
+                            } else {
+                                tvBanner.text = err ?: "Phone verification failed."
+                                tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
+                            }
+                        }
+                    }
+
+                    override fun onVerificationFailed(e: FirebaseException) {
+                        pbAuth.visibility = View.GONE
+                        btnAction.visibility = View.VISIBLE
+                        val msg = when {
+                            e.message?.contains("BILLING", ignoreCase = true) == true ||
+                            e.message?.contains("quota", ignoreCase = true) == true ->
+                                "SMS quota limit reached. Please sign in with email or continue as Guest."
+                            e.message?.contains("invalid", ignoreCase = true) == true ->
+                                "Invalid mobile number format."
+                            else -> "Verification failed: ${e.localizedMessage ?: "Please try again."}"
+                        }
+                        tvBanner.text = msg
+                        tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
+                    }
+
+                    override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                        pbAuth.visibility = View.GONE
+                        btnAction.visibility = View.VISIBLE
+                        storedVerificationId = verificationId
+                        resendToken = token
+                        otpSent = true
+                        layoutOtp.visibility = View.VISIBLE
+                        btnAction.text = "Verify OTP & Continue"
+                        tvBanner.text = "Code sent to +91 $phone! Enter the 6-digit OTP below."
+                        tvBanner.setBackgroundResource(R.drawable.bg_pill_lime)
+                        etOtp.requestFocus()
+                    }
+                }
+
+                val options = PhoneAuthOptions.newBuilder(FirebaseRepository.auth)
+                    .setPhoneNumber(fullPhone)
+                    .setTimeout(60L, TimeUnit.SECONDS)
+                    .setActivity(this@LoginActivity)
+                    .setCallbacks(callbacks)
+                    .build()
+
+                PhoneAuthProvider.verifyPhoneNumber(options)
             } else {
                 val otp = etOtp.text.toString().trim()
-                if (otp.isEmpty()) {
-                    tvBanner.text = "Please enter the OTP or verification token."
+                if (otp.length < 6) {
+                    tvBanner.text = "Please enter the complete 6-digit OTP code."
+                    tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
+                    return@setOnClickListener
+                }
+
+                if (storedVerificationId == null) {
+                    tvBanner.text = "Verification session expired. Please request a new code."
                     tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
                     return@setOnClickListener
                 }
@@ -485,23 +551,18 @@ class LoginActivity : AppCompatActivity() {
                 pbAuth.visibility = View.VISIBLE
                 btnAction.visibility = View.INVISIBLE
 
+                val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, otp)
                 lifecycleScope.launch {
-                    val verificationToken = "AawNgEoDeVe4qXiiYp4m2pTuz__hNOfd7xbBwWISVz3N3gAHod_bmxB11p9wqkpK1SPDeHucEcma6W3ye5vrum5l0q1MnUAMHdUVM8wh2LAs0ngB4zcNVHUbnOOWJhzgMy32waLGivED5x3t5MEPJtqaLQ"
-                    val (success, errorMsg) = FirebaseRepository.loginOrRegisterPhoneUser(
-                        phoneNumber = phone,
-                        fullName = name.ifEmpty { "Student" },
-                        verificationToken = if (otp.length > 20) otp else verificationToken
-                    )
+                    val (success, errorMsg) = FirebaseRepository.signInWithPhoneCredential(credential, name)
                     pbAuth.visibility = View.GONE
                     btnAction.visibility = View.VISIBLE
 
                     if (success) {
                         dialog.dismiss()
                         Toast.makeText(this@LoginActivity, "Welcome to MyBuddy, ${if (name.isNotEmpty()) name else "Student"}!", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                        finish()
+                        checkOnboardingAndProceed()
                     } else {
-                        tvBanner.text = errorMsg ?: "Unable to verify phone number. Please try again."
+                        tvBanner.text = errorMsg ?: "Invalid verification code. Please check and try again."
                         tvBanner.setBackgroundResource(R.drawable.bg_pill_coral)
                     }
                 }
@@ -509,5 +570,17 @@ class LoginActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun checkOnboardingAndProceed() {
+        lifecycleScope.launch {
+            val profile = FirebaseRepository.getProfile()
+            if (!profile.isOnboardingCompleted && profile.college.isBlank() && profile.course.isBlank()) {
+                startActivity(Intent(this@LoginActivity, OnboardingActivity::class.java))
+            } else {
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+            }
+            finish()
+        }
     }
 }

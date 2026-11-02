@@ -104,89 +104,52 @@ object FirebaseRepository {
         }
     }
 
-    suspend fun loginOrRegisterGoogleUser(email: String, fullName: String, googleId: String): Boolean {
-        if (email.isEmpty()) return false
-        val safePass = "MyBuddyAuth_" + googleId.take(12).ifEmpty { "Secure2026" }
-        
-        // 1. Try to sign in with standard email credentials
-        val (signInOk, _) = signInEmail(email, safePass)
-        if (signInOk) return true
-
-        // 2. Try to register as a new verified user
-        val (regOk, _) = registerEmail(email, safePass, fullName)
-        if (regOk) return true
-
-        // 3. Fallback: anonymous or current auth session + update local profile
+    suspend fun signInGuest(): Pair<Boolean, String?> {
         return try {
-            if (auth.currentUser == null) {
-                auth.signInAnonymously().await()
-            }
-            val uid = getCurrentUserId()
-            val profile = StudentProfile(
-                userId = uid,
-                email = email,
-                fullName = fullName.ifEmpty { "Student" }
-            )
-            saveProfile(profile)
-            true
-        } catch (_: Exception) {
-            true // Allow student to proceed into dashboard with guest fallback
-        }
-    }
-
-    suspend fun loginOrRegisterPhoneUser(
-        phoneNumber: String,
-        fullName: String,
-        verificationToken: String? = null
-    ): Pair<Boolean, String?> {
-        val cleanPhone = phoneNumber.replace(" ", "").replace("-", "")
-        if (cleanPhone.length < 10) {
-            return Pair(false, "Please enter a valid 10-digit mobile number")
-        }
-        val syntheticEmail = "phone_${cleanPhone.takeLast(10)}@mybuddy.app"
-        val safePassword = "MyBuddyPhoneAuth_" + cleanPhone.takeLast(6)
-
-        // 1. Try to sign in if account exists
-        val (signInOk, _) = signInEmail(syntheticEmail, safePassword)
-        if (signInOk) {
+            auth.signInAnonymously().await()
             val uid = getCurrentUserId()
             try {
                 val doc = firestore.collection("users").document(uid).get().await()
                 if (!doc.exists()) {
-                    val p = StudentProfile(
+                    val profile = StudentProfile(
                         userId = uid,
-                        email = syntheticEmail,
-                        fullName = fullName.ifEmpty { "Student" },
-                        college = "University Student"
+                        email = "guest@mybuddy.app",
+                        fullName = "Guest Student"
                     )
-                    saveProfile(p)
+                    saveProfile(profile)
                 }
             } catch (_: Exception) {}
-            return Pair(true, null)
-        }
-
-        // 2. Register as a new student
-        val (regOk, regErr) = registerEmail(syntheticEmail, safePassword, fullName.ifEmpty { "Student" })
-        if (regOk) {
-            return Pair(true, null)
-        }
-
-        // 3. Fallback: anonymous or authenticated session + local profile setup
-        return try {
-            if (auth.currentUser == null) {
-                auth.signInAnonymously().await()
-            }
-            val uid = getCurrentUserId()
-            val p = StudentProfile(
-                userId = uid,
-                email = syntheticEmail,
-                fullName = fullName.ifEmpty { "Student" },
-                college = "University Student"
-            )
-            saveProfile(p)
             Pair(true, null)
-        } catch (_: Exception) {
-            Pair(false, regErr ?: "Mobile authentication failed. Please try again.")
+        } catch (e: Exception) {
+            Pair(false, e.localizedMessage ?: e.message ?: "Guest sign-in failed")
+        }
+    }
+
+    suspend fun signInWithPhoneCredential(
+        credential: com.google.firebase.auth.PhoneAuthCredential,
+        fullName: String
+    ): Pair<Boolean, String?> {
+        return try {
+            val res = auth.signInWithCredential(credential).await()
+            val user = res.user ?: return Pair(false, "Phone authentication returned null user")
+            val uid = user.uid
+
+            try {
+                val doc = firestore.collection("users").document(uid).get().await()
+                if (!doc.exists()) {
+                    val profile = StudentProfile(
+                        userId = uid,
+                        email = user.phoneNumber ?: "",
+                        fullName = fullName.ifEmpty { "Student" }
+                    )
+                    saveProfile(profile)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FirebaseRepository", "Profile init error: ${e.message}")
+            }
+            Pair(true, null)
+        } catch (e: Exception) {
+            Pair(false, e.localizedMessage ?: e.message ?: "Phone verification failed")
         }
     }
 
@@ -206,32 +169,37 @@ object FirebaseRepository {
             if (doc.exists()) {
                 StudentProfile(
                     userId = uid,
-                    email = doc.getString("email") ?: auth.currentUser?.email ?: "student@academic.edu",
+                    email = doc.getString("email") ?: auth.currentUser?.email ?: "",
                     fullName = doc.getString("fullName") ?: "Student",
-                    college = doc.getString("college") ?: "National Institute of Technology",
-                    course = doc.getString("course") ?: "B.Tech Computer Science & Engineering",
-                    semester = doc.getString("semester") ?: "Semester 6",
+                    college = doc.getString("college") ?: "",
+                    course = doc.getString("course") ?: "",
+                    semester = doc.getString("semester") ?: "",
+                    section = doc.getString("section") ?: "",
                     academicYear = doc.getString("academicYear") ?: "2026-2027",
                     minimumAttendanceTarget = doc.getDouble("minimumAttendanceTarget") ?: 75.0,
-                    preferredStudyHoursPerDay = doc.getDouble("preferredStudyHoursPerDay") ?: 4.0,
-                    preferredBreakDurationMinutes = doc.getLong("preferredBreakDurationMinutes")?.toInt() ?: 15
+                    preferredStudyHoursPerDay = doc.getDouble("preferredStudyHoursPerDay") ?: 3.0,
+                    preferredBreakDurationMinutes = doc.getLong("preferredBreakDurationMinutes")?.toInt() ?: 10,
+                    careerGoals = doc.getString("careerGoals") ?: "",
+                    academicInterests = (doc.get("academicInterests") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                    isOnboardingCompleted = doc.getBoolean("isOnboardingCompleted") ?: false,
+                    avatarUrl = doc.getString("avatarUrl") ?: ""
                 )
             } else {
                 val p = StudentProfile(
                     userId = uid,
-                    email = auth.currentUser?.email ?: "student@academic.edu",
-                    fullName = "Student"
+                    email = auth.currentUser?.email ?: "",
+                    fullName = auth.currentUser?.displayName ?: "Student"
                 )
                 saveProfile(p)
                 p
             }
         } catch (_: Exception) {
-            StudentProfile(userId = uid, email = "student@academic.edu", fullName = "Student")
+            StudentProfile(userId = uid, email = auth.currentUser?.email ?: "", fullName = "Student")
         }
     }
 
     suspend fun saveProfile(profile: StudentProfile): Boolean {
-        val uid = getCurrentUserId()
+        val uid = profile.userId.ifEmpty { getCurrentUserId() }
         return try {
             firestore.collection("users").document(uid).set(
                 mapOf(
@@ -241,10 +209,15 @@ object FirebaseRepository {
                     "college" to profile.college,
                     "course" to profile.course,
                     "semester" to profile.semester,
+                    "section" to profile.section,
                     "academicYear" to profile.academicYear,
                     "minimumAttendanceTarget" to profile.minimumAttendanceTarget,
                     "preferredStudyHoursPerDay" to profile.preferredStudyHoursPerDay,
-                    "preferredBreakDurationMinutes" to profile.preferredBreakDurationMinutes
+                    "preferredBreakDurationMinutes" to profile.preferredBreakDurationMinutes,
+                    "careerGoals" to profile.careerGoals,
+                    "academicInterests" to profile.academicInterests,
+                    "isOnboardingCompleted" to profile.isOnboardingCompleted,
+                    "avatarUrl" to profile.avatarUrl
                 )
             ).await()
             true
@@ -1528,6 +1501,180 @@ object FirebaseRepository {
         if (idx >= 0) {
             val curr = cachedNotes[idx]
             cachedNotes[idx] = curr.copy(isPinned = !curr.isPinned)
+        }
+    }
+
+    // ==========================================
+    // 16. EMERGENCY ID WALLET
+    // ==========================================
+    suspend fun getEmergencyDocuments(): List<EmergencyDocument> {
+        val uid = getCurrentUserId()
+        return try {
+            val snap = firestore.collection("users").document(uid).collection("emergency_wallet").get().await()
+            snap.documents.mapNotNull { d ->
+                EmergencyDocument(
+                    id = d.id,
+                    userId = uid,
+                    title = d.getString("title") ?: "",
+                    documentType = d.getString("documentType") ?: "college_id",
+                    idNumber = d.getString("idNumber") ?: "",
+                    holderName = d.getString("holderName") ?: "",
+                    issueDate = d.getString("issueDate") ?: "",
+                    expiryDate = d.getString("expiryDate") ?: "",
+                    fileUriOrPath = d.getString("fileUriOrPath") ?: "",
+                    notes = d.getString("notes") ?: "",
+                    isEncrypted = d.getBoolean("isEncrypted") ?: true,
+                    lastVerifiedAt = d.getLong("lastVerifiedAt") ?: 0L
+                )
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun saveEmergencyDocument(doc: EmergencyDocument): Boolean {
+        val uid = getCurrentUserId()
+        val docId = if (doc.id.isEmpty()) UUID.randomUUID().toString() else doc.id
+        return try {
+            firestore.collection("users").document(uid).collection("emergency_wallet").document(docId).set(
+                mapOf(
+                    "title" to doc.title,
+                    "documentType" to doc.documentType,
+                    "idNumber" to doc.idNumber,
+                    "holderName" to doc.holderName,
+                    "issueDate" to doc.issueDate,
+                    "expiryDate" to doc.expiryDate,
+                    "fileUriOrPath" to doc.fileUriOrPath,
+                    "notes" to doc.notes,
+                    "isEncrypted" to doc.isEncrypted,
+                    "lastVerifiedAt" to System.currentTimeMillis()
+                )
+            ).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun deleteEmergencyDocument(id: String): Boolean {
+        val uid = getCurrentUserId()
+        return try {
+            firestore.collection("users").document(uid).collection("emergency_wallet").document(id).delete().await()
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    // ==========================================
+    // 17. DAILY LEARNING JOURNAL & LOGS
+    // ==========================================
+    suspend fun getDailyLogs(): List<DailyLog> {
+        val uid = getCurrentUserId()
+        return try {
+            val snap = firestore.collection("users").document(uid).collection("daily_logs")
+                .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(30)
+                .get().await()
+            snap.documents.mapNotNull { d ->
+                DailyLog(
+                    id = d.id,
+                    userId = uid,
+                    date = d.getString("date") ?: "",
+                    whatStudied = d.getString("whatStudied") ?: "",
+                    whatCompleted = d.getString("whatCompleted") ?: "",
+                    whatLearned = d.getString("whatLearned") ?: "",
+                    whatStruggledWith = d.getString("whatStruggledWith") ?: "",
+                    tomorrowPlan = d.getString("tomorrowPlan") ?: "",
+                    focusMinutes = d.getLong("focusMinutes")?.toInt() ?: 0,
+                    moodScore = d.getLong("moodScore")?.toInt() ?: 3,
+                    createdAt = d.getLong("createdAt") ?: 0L
+                )
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun saveDailyLog(log: DailyLog): Boolean {
+        val uid = getCurrentUserId()
+        val docId = if (log.id.isEmpty()) "log_" + System.currentTimeMillis() else log.id
+        return try {
+            firestore.collection("users").document(uid).collection("daily_logs").document(docId).set(
+                mapOf(
+                    "date" to log.date,
+                    "whatStudied" to log.whatStudied,
+                    "whatCompleted" to log.whatCompleted,
+                    "whatLearned" to log.whatLearned,
+                    "whatStruggledWith" to log.whatStruggledWith,
+                    "tomorrowPlan" to log.tomorrowPlan,
+                    "focusMinutes" to log.focusMinutes,
+                    "moodScore" to log.moodScore,
+                    "createdAt" to log.createdAt
+                )
+            ).await()
+            addXP(30, "Logged daily study journal")
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    // ==========================================
+    // 18. EXAM SCHEDULES
+    // ==========================================
+    suspend fun getExamSchedules(): List<ExamSchedule> {
+        val uid = getCurrentUserId()
+        return try {
+            val snap = firestore.collection("users").document(uid).collection("exams")
+                .orderBy("examDate")
+                .get().await()
+            snap.documents.mapNotNull { d ->
+                ExamSchedule(
+                    id = d.id,
+                    userId = uid,
+                    subjectId = d.getString("subjectId") ?: "",
+                    subjectName = d.getString("subjectName") ?: "",
+                    subjectCode = d.getString("subjectCode") ?: "",
+                    examName = d.getString("examName") ?: "",
+                    examDate = d.getString("examDate") ?: "",
+                    startTime = d.getString("startTime") ?: "",
+                    endTime = d.getString("endTime") ?: "",
+                    roomOrHall = d.getString("roomOrHall") ?: "",
+                    syllabusTopics = (d.get("syllabusTopics") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                    completedTopics = (d.get("completedTopics") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                    targetMarks = d.getDouble("targetMarks") ?: 100.0,
+                    weightagePercentage = d.getDouble("weightagePercentage") ?: 30.0
+                )
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun saveExamSchedule(exam: ExamSchedule): Boolean {
+        val uid = getCurrentUserId()
+        val docId = if (exam.id.isEmpty()) "exam_" + UUID.randomUUID().toString().take(8) else exam.id
+        return try {
+            firestore.collection("users").document(uid).collection("exams").document(docId).set(
+                mapOf(
+                    "subjectId" to exam.subjectId,
+                    "subjectName" to exam.subjectName,
+                    "subjectCode" to exam.subjectCode,
+                    "examName" to exam.examName,
+                    "examDate" to exam.examDate,
+                    "startTime" to exam.startTime,
+                    "endTime" to exam.endTime,
+                    "roomOrHall" to exam.roomOrHall,
+                    "syllabusTopics" to exam.syllabusTopics,
+                    "completedTopics" to exam.completedTopics,
+                    "targetMarks" to exam.targetMarks,
+                    "weightagePercentage" to exam.weightagePercentage
+                )
+            ).await()
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 }

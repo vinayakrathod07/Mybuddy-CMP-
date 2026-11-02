@@ -34,6 +34,9 @@ class ProfileFragment : Fragment() {
     private lateinit var btnThemeLight: TextView
     private lateinit var btnThemeDark: TextView
 
+    private lateinit var etGeminiApiKey: EditText
+    private lateinit var btnSaveGeminiKey: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -58,6 +61,20 @@ class ProfileFragment : Fragment() {
         btnThemeSystem = root.findViewById(R.id.btnThemeSystem)
         btnThemeLight = root.findViewById(R.id.btnThemeLight)
         btnThemeDark = root.findViewById(R.id.btnThemeDark)
+
+        etGeminiApiKey = root.findViewById(R.id.etGeminiApiKey)
+        btnSaveGeminiKey = root.findViewById(R.id.btnSaveGeminiKey)
+
+        val currentKey = DostAIEngine.getApiKey(requireContext())
+        if (currentKey.isNotBlank()) {
+            etGeminiApiKey.setText(currentKey)
+        }
+
+        btnSaveGeminiKey.setOnClickListener {
+            val key = etGeminiApiKey.text.toString().trim()
+            DostAIEngine.setCustomApiKey(requireContext(), key)
+            Toast.makeText(context, if (key.isNotBlank()) "Gemini API key configured! Cloud LLM active." else "API key cleared. Local Engine active.", Toast.LENGTH_SHORT).show()
+        }
 
         setupThemeSelector()
 

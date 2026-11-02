@@ -310,18 +310,51 @@ class TimetableFragment : Fragment() {
             progressDialog.dismiss()
 
             if (detected.isNotEmpty()) {
+                val existing = FirebaseRepository.getTimetable()
+                val conflicts = mutableListOf<String>()
+                for (newEntry in detected) {
+                    val conflict = existing.firstOrNull { ex ->
+                        ex.dayOfWeek.equals(newEntry.dayOfWeek, ignoreCase = true) &&
+                        (ex.startTime == newEntry.startTime || (ex.startTime.isNotEmpty() && ex.startTime == newEntry.startTime))
+                    }
+                    if (conflict != null) {
+                        conflicts.add("${newEntry.dayOfWeek} ${newEntry.startTime}: '${newEntry.subjectName}' clashes with existing '${conflict.subjectName}'")
+                    }
+                }
+
                 val preview = detected.take(5).joinToString("\n") {
                     "• ${it.dayOfWeek}: ${it.subjectName} (${it.startTime} - ${it.endTime}) [${it.classroom}]"
                 }
+
+                val warningMsg = if (conflicts.isNotEmpty()) {
+                    "\n\n⚠️ Schedule Conflicts Detected (${conflicts.size}):\n" + conflicts.take(3).joinToString("\n") +
+                    (if (conflicts.size > 3) "\n...and ${conflicts.size - 3} more" else "")
+                } else ""
+
                 AlertDialog.Builder(requireContext())
                     .setTitle("✨ AI Found ${detected.size} Class(es)")
-                    .setMessage("Schedule preview:\n\n$preview\n\nImport all detected classes into your timetable?")
+                    .setMessage("Schedule preview:\n\n$preview$warningMsg\n\nImport detected classes into your timetable?")
                     .setPositiveButton("Import All") { _, _ ->
                         viewLifecycleOwner.lifecycleScope.launch {
                             for (entry in detected) {
                                 FirebaseRepository.addTimetableEntry(entry)
                             }
                             Toast.makeText(context, "Successfully imported ${detected.size} classes!", Toast.LENGTH_LONG).show()
+                            loadTimetable()
+                        }
+                    }
+                    .setNeutralButton("Skip Conflicts") { _, _ ->
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val nonConflicting = detected.filter { newEntry ->
+                                existing.none { ex ->
+                                    ex.dayOfWeek.equals(newEntry.dayOfWeek, ignoreCase = true) &&
+                                    ex.startTime == newEntry.startTime
+                                }
+                            }
+                            for (entry in nonConflicting) {
+                                FirebaseRepository.addTimetableEntry(entry)
+                            }
+                            Toast.makeText(context, "Imported ${nonConflicting.size} classes (conflicts skipped)!", Toast.LENGTH_LONG).show()
                             loadTimetable()
                         }
                     }

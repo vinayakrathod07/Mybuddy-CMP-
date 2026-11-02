@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var bottomNav: BottomNavigationView
+    private var isNavigating = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(this)
@@ -35,7 +36,8 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Initialize Firebase Auth & Active Student AI Engine in background
+        // Initialize Firebase Auth, Deadline Guardian Worker & Active Student AI Engine
+        DeadlineGuardianWorker.schedulePeriodicCheck(this)
         lifecycleScope.launch {
             FirebaseRepository.ensureAuthenticated()
             StudentAIEngine.runProactiveAnalysis()
@@ -96,22 +98,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun navigateTo(fragment: Fragment, title: String, subtitle: String = "") {
+        if (isNavigating) return
+        isNavigating = true
         topAppBar.title = title
         topAppBar.subtitle = subtitle
         topAppBar.visibility = if (fragment is DashboardFragment) android.view.View.GONE else android.view.View.VISIBLE
 
-        // Synchronize bottom nav selection state
-        when (fragment) {
-            is DashboardFragment -> if (bottomNav.selectedItemId != R.id.navigation_dashboard) bottomNav.menu.findItem(R.id.navigation_dashboard).isChecked = true
-            is TasksFragment -> if (bottomNav.selectedItemId != R.id.navigation_tasks) bottomNav.menu.findItem(R.id.navigation_tasks).isChecked = true
-            is AIChatFragment -> if (bottomNav.selectedItemId != R.id.navigation_dost) bottomNav.menu.findItem(R.id.navigation_dost).isChecked = true
-            is TimetableFragment -> if (bottomNav.selectedItemId != R.id.navigation_timetable) bottomNav.menu.findItem(R.id.navigation_timetable).isChecked = true
-            is LifestyleFragment -> if (bottomNav.selectedItemId != R.id.navigation_lifestyle) bottomNav.menu.findItem(R.id.navigation_lifestyle).isChecked = true
+        val targetId = when (fragment) {
+            is DashboardFragment -> R.id.navigation_dashboard
+            is TasksFragment -> R.id.navigation_tasks
+            is AIChatFragment -> R.id.navigation_dost
+            is TimetableFragment -> R.id.navigation_timetable
+            is LifestyleFragment -> R.id.navigation_lifestyle
+            else -> null
+        }
+        if (targetId != null && bottomNav.selectedItemId != targetId) {
+            bottomNav.menu.findItem(targetId)?.isChecked = true
         }
 
         supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.fragment_container, fragment)
             .commit()
+        isNavigating = false
     }
 }

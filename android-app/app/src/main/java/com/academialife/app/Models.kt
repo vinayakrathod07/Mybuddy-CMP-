@@ -1,16 +1,33 @@
 package com.academialife.app
 
+sealed class ApiResult<out T> {
+    data class Success<out T>(val data: T) : ApiResult<T>()
+    data class Error(val message: String, val throwable: Throwable? = null) : ApiResult<Nothing>()
+    object Loading : ApiResult<Nothing>()
+    object Empty : ApiResult<Nothing>()
+    object AuthRequired : ApiResult<Nothing>()
+    object Offline : ApiResult<Nothing>()
+
+    val isSuccess: Boolean get() = this is Success
+    fun getOrNull(): T? = (this as? Success)?.data
+}
+
 data class StudentProfile(
     val userId: String = "",
     val email: String = "",
     val fullName: String = "",
-    val college: String = "National Institute of Technology",
-    val course: String = "B.Tech Computer Science & Engineering",
-    val semester: String = "Semester 6",
+    val college: String = "",
+    val course: String = "",
+    val semester: String = "",
+    val section: String = "",
     val academicYear: String = "2026-2027",
     val minimumAttendanceTarget: Double = 75.0,
-    val preferredStudyHoursPerDay: Double = 4.0,
-    val preferredBreakDurationMinutes: Int = 15
+    val preferredStudyHoursPerDay: Double = 3.0,
+    val preferredBreakDurationMinutes: Int = 10,
+    val careerGoals: String = "",
+    val academicInterests: List<String> = emptyList(),
+    val isOnboardingCompleted: Boolean = false,
+    val avatarUrl: String = ""
 )
 
 data class UserPreferences(
@@ -269,4 +286,61 @@ data class StudentRoadmap(
     val whatToAvoid: List<String>,
     val immediateNextSteps: List<String>,
     val motivationalQuote: String
+)
+
+data class EmergencyDocument(
+    val id: String = "",
+    val userId: String = "",
+    val title: String = "", // "College Student ID", "Aadhaar Card", "PAN Card", "Driving License", "Blood Group & Emergency Card"
+    val documentType: String = "college_id", // college_id, national_id, health, certificate
+    val idNumber: String = "", // e.g. Roll No / ID No (encrypted locally)
+    val holderName: String = "",
+    val issueDate: String = "",
+    val expiryDate: String = "",
+    val fileUriOrPath: String = "",
+    val notes: String = "",
+    val isEncrypted: Boolean = true,
+    val lastVerifiedAt: Long = 0L
+)
+
+data class DailyLog(
+    val id: String = "",
+    val userId: String = "",
+    val date: String = "", // yyyy-MM-dd
+    val whatStudied: String = "",
+    val whatCompleted: String = "",
+    val whatLearned: String = "",
+    val whatStruggledWith: String = "",
+    val tomorrowPlan: String = "",
+    val focusMinutes: Int = 0,
+    val moodScore: Int = 3, // 1 to 5
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+data class ExamSchedule(
+    val id: String = "",
+    val userId: String = "",
+    val subjectId: String = "",
+    val subjectName: String = "",
+    val subjectCode: String = "",
+    val examName: String = "", // Midterm, Final, Unit Test, Lab Viva
+    val examDate: String = "", // yyyy-MM-dd
+    val startTime: String = "", // HH:mm
+    val endTime: String = "", // HH:mm
+    val roomOrHall: String = "",
+    val syllabusTopics: List<String> = emptyList(),
+    val completedTopics: List<String> = emptyList(),
+    val targetMarks: Double = 100.0,
+    val weightagePercentage: Double = 30.0
+)
+
+data class StudyScheduleSlot(
+    val id: String = "",
+    val subjectName: String = "",
+    val topic: String = "",
+    val dayOfWeek: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val durationMinutes: Int = 45,
+    val isCompleted: Boolean = false
 )

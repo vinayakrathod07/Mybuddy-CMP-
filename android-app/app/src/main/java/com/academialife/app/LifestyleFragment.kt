@@ -13,6 +13,7 @@ import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -34,6 +35,15 @@ class LifestyleFragment : Fragment() {
     private lateinit var pbBudget: ProgressBar
     private lateinit var btnAddExpense: TextView
     private lateinit var layoutExpensesList: LinearLayout
+
+    // Emergency Wallet Views
+    private lateinit var tvWalletLockBadge: TextView
+    private lateinit var layoutWalletLocked: LinearLayout
+    private lateinit var layoutWalletUnlocked: LinearLayout
+    private lateinit var btnUnlockEmergencyWallet: TextView
+    private lateinit var layoutCredentialsList: LinearLayout
+    private lateinit var btnAddEmergencyId: TextView
+    private lateinit var btnLockEmergencyWallet: TextView
 
     // Wellness Views
     private lateinit var tvCurrentMoodStatus: TextView
@@ -93,6 +103,15 @@ class LifestyleFragment : Fragment() {
         pbBudget = root.findViewById(R.id.pbBudget)
         btnAddExpense = root.findViewById(R.id.btnAddExpense)
         layoutExpensesList = root.findViewById(R.id.layoutExpensesList)
+
+        // Emergency Wallet
+        tvWalletLockBadge = root.findViewById(R.id.tvWalletLockBadge)
+        layoutWalletLocked = root.findViewById(R.id.layoutWalletLocked)
+        layoutWalletUnlocked = root.findViewById(R.id.layoutWalletUnlocked)
+        btnUnlockEmergencyWallet = root.findViewById(R.id.btnUnlockEmergencyWallet)
+        layoutCredentialsList = root.findViewById(R.id.layoutCredentialsList)
+        btnAddEmergencyId = root.findViewById(R.id.btnAddEmergencyId)
+        btnLockEmergencyWallet = root.findViewById(R.id.btnLockEmergencyWallet)
 
         // Wellness
         tvCurrentMoodStatus = root.findViewById(R.id.tvCurrentMoodStatus)
@@ -186,9 +205,166 @@ class LifestyleFragment : Fragment() {
         btnAddExpense.setOnClickListener {
             showAddExpenseDialog()
         }
+        setupEmergencyWalletActions()
+    }
+
+    private fun setupEmergencyWalletActions() {
+        btnUnlockEmergencyWallet.setOnClickListener {
+            val act = activity as? AppCompatActivity ?: return@setOnClickListener
+            SecurityWalletManager.authenticate(
+                activity = act,
+                title = "Unlock Emergency ID Wallet",
+                subtitle = "Authenticate to access encrypted student IDs",
+                onSuccess = {
+                    Toast.makeText(context, "Wallet Unlocked (60s session)", Toast.LENGTH_SHORT).show()
+                    updateEmergencyWalletUI()
+                },
+                onError = { err ->
+                    Toast.makeText(context, err, Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+
+        btnLockEmergencyWallet.setOnClickListener {
+            SecurityWalletManager.lockWallet()
+            Toast.makeText(context, "Emergency Wallet Locked", Toast.LENGTH_SHORT).show()
+            updateEmergencyWalletUI()
+        }
+
+        btnAddEmergencyId.setOnClickListener {
+            showAddEmergencyIdDialog()
+        }
+    }
+
+    private fun updateEmergencyWalletUI() {
+        if (SecurityWalletManager.isUnlocked()) {
+            tvWalletLockBadge.text = "🔓 Active"
+            tvWalletLockBadge.setBackgroundResource(R.drawable.bg_pill_lime)
+            layoutWalletLocked.visibility = View.GONE
+            layoutWalletUnlocked.visibility = View.VISIBLE
+            loadDecryptedCredentials()
+        } else {
+            tvWalletLockBadge.text = "🔒 Locked"
+            tvWalletLockBadge.setBackgroundResource(R.drawable.bg_pill_coral)
+            layoutWalletLocked.visibility = View.VISIBLE
+            layoutWalletUnlocked.visibility = View.GONE
+        }
+    }
+
+    private fun loadDecryptedCredentials() {
+        layoutCredentialsList.removeAllViews()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val docs = FirebaseRepository.getEmergencyDocuments()
+            if (docs.isEmpty()) {
+                val tv = TextView(context).apply {
+                    text = "No emergency credentials saved yet. Tap '+ Add ID' below."
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    setPadding(12, 16, 12, 16)
+                    textSize = 13f
+                }
+                layoutCredentialsList.addView(tv)
+            } else {
+                docs.forEach { doc ->
+                    val card = LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setBackgroundResource(R.drawable.bg_neumorphic_sunken)
+                        setPadding(16, 14, 16, 14)
+                        val params = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply { setMargins(0, 8, 0, 8) }
+                        layoutParams = params
+                    }
+
+                    val titleRow = LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = android.view.Gravity.CENTER_VERTICAL
+                    }
+
+                    val tvTitle = TextView(context).apply {
+                        text = "🪪 " + doc.title
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        textSize = 14f
+                        typeface = android.graphics.Typeface.DEFAULT_BOLD
+                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    }
+
+                    val btnDelete = TextView(context).apply {
+                        text = "🗑️"
+                        textSize = 14f
+                        setPadding(8, 4, 8, 4)
+                        setOnClickListener {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                FirebaseRepository.deleteEmergencyDocument(doc.id)
+                                loadDecryptedCredentials()
+                            }
+                        }
+                    }
+
+                    titleRow.addView(tvTitle)
+                    titleRow.addView(btnDelete)
+
+                    val tvNumber = TextView(context).apply {
+                        text = "ID: " + doc.idNumber
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.brand_primary))
+                        textSize = 13f
+                        typeface = android.graphics.Typeface.MONOSPACE
+                        setPadding(0, 6, 0, 2)
+                    }
+
+                    val tvHolder = TextView(context).apply {
+                        text = if (doc.holderName.isNotEmpty()) "Holder: " + doc.holderName else "Protected Credential"
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                        textSize = 12f
+                    }
+
+                    card.addView(titleRow)
+                    card.addView(tvNumber)
+                    card.addView(tvHolder)
+                    layoutCredentialsList.addView(card)
+                }
+            }
+        }
+    }
+
+    private fun showAddEmergencyIdDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_add_emergency_id, null, false)
+        val etTitle = view.findViewById<EditText>(R.id.etEmergencyIdTitle)
+        val etNumber = view.findViewById<EditText>(R.id.etEmergencyIdNumber)
+        val etHolder = view.findViewById<EditText>(R.id.etEmergencyIdHolder)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Encrypted Credential")
+            .setView(view)
+            .setPositiveButton("Save Securely") { _, _ ->
+                val title = etTitle.text.toString().trim()
+                val number = etNumber.text.toString().trim()
+                val holder = etHolder.text.toString().trim()
+
+                if (title.isNotEmpty() && number.isNotEmpty()) {
+                    val doc = EmergencyDocument(
+                        id = "eid_" + System.currentTimeMillis(),
+                        title = title,
+                        idNumber = number,
+                        holderName = holder,
+                        isEncrypted = true
+                    )
+                    SecurityWalletManager.saveEncryptedDocument(requireContext(), doc)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        FirebaseRepository.saveEmergencyDocument(doc)
+                        Toast.makeText(context, "ID securely saved and encrypted!", Toast.LENGTH_SHORT).show()
+                        loadDecryptedCredentials()
+                    }
+                } else {
+                    Toast.makeText(context, "Title and ID Number are required", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun loadWalletData() {
+        updateEmergencyWalletUI()
         val budget = FirebaseRepository.getBudget()
         val expenses = FirebaseRepository.getExpenses()
 
@@ -303,7 +479,28 @@ class LifestyleFragment : Fragment() {
             val note = etJournalReflection.text.toString().trim()
             val current = FirebaseRepository.getTodayWellness()
             FirebaseRepository.saveWellness(current.mood, current.waterGlasses, current.sleepHours, note)
-            Toast.makeText(context, "✨ Daily reflection saved! +30 XP awarded.", Toast.LENGTH_SHORT).show()
+            val todayStr = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+            val log = DailyLog(
+                userId = FirebaseRepository.getCurrentUserId(),
+                date = todayStr,
+                whatStudied = "Academic Day Reflection",
+                whatCompleted = note,
+                whatLearned = note,
+                tomorrowPlan = "Continue study plan",
+                focusMinutes = (current.sleepHours * 60).toInt(),
+                moodScore = when (current.mood) {
+                    "Excited" -> 5
+                    "Motivated" -> 4
+                    "Calm" -> 3
+                    "Tired" -> 2
+                    "Stressed" -> 1
+                    else -> 3
+                }
+            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                FirebaseRepository.saveDailyLog(log)
+            }
+            Toast.makeText(context, "✨ Daily reflection saved to Journal! +30 XP awarded.", Toast.LENGTH_SHORT).show()
         }
     }
 
